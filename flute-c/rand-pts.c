@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#if __GLIBC__ 
 #include <unistd.h>
+#else
+#include <process.h>
+#endif
 
 int main(int ac, char *av[])
 {
@@ -9,9 +14,17 @@ int main(int ac, char *av[])
 
     for (i=1; i<ac; i++) {
         if (strcmp(av[i], "-r")==0)  // random
+#if __GLIBC__ 
             srandom((int) getpid());
+#else
+            srand((int) _getpid());
+#endif
         else if (strncmp(av[i], "-s", 2)==0)  // set random seed
-            srandom(atoi(av[i]+2));
+#if __GLIBC__ 
+            srandom(atoi(av[i] + 2));
+#else
+            srand(atoi(av[i] + 2));
+#endif
         else if (strcmp(av[i], "-n")==0)  // print # of points first
             PNUM=1;
         else if (sscanf(av[i], "%d", &tmp))  // set # of points
@@ -31,5 +44,9 @@ int main(int ac, char *av[])
     if (PNUM)
         printf("%d\n", d);
     for (i=1; i<=d; i++)
+#if __GLIBC__ 
         printf("%4d %4d\n", (int) random()%10000, (int) random()%10000);
+#else
+        printf("%4d %4d\n", (int) rand()%10000, (int) rand()%10000);
+#endif
 }

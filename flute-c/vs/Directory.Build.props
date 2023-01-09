@@ -1,0 +1,31 @@
+<Project>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\bookshelf_IO.h" />
+    <ClInclude Include="..\..\dist.h" />
+    <ClInclude Include="..\..\dl.h" />
+    <ClInclude Include="..\..\err.h" />
+    <ClInclude Include="..\..\flute.h" />
+    <ClInclude Include="..\..\global.h" />
+    <ClInclude Include="..\..\heap.h" />
+    <ClInclude Include="..\..\memAlloc.h" />
+    <ClInclude Include="..\..\mst2.h" />
+    <ClInclude Include="..\..\neighbors.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\bookshelf_IO.c" />
+    <ClCompile Include="..\..\dist.c" />
+    <ClCompile Include="..\..\dl.c" />
+    <ClCompile Include="..\..\err.c" />
+    <ClCompile Include="..\..\flute.c" />
+    <ClCompile Include="..\..\flute_mst.c" />
+    <ClCompile Include="..\..\heap.c" />
+    <ClCompile Include="..\..\memAlloc.c" />
+    <ClCompile Include="..\..\mst2.c" />
+    <ClCompile Include="..\..\neighbors.c" />
+  </ItemGroup>
+</Project>
