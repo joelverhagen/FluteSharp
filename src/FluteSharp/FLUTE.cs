@@ -1,43 +1,33 @@
 ﻿using System.Drawing;
-using FluteSharp;
-using static FluteSharp.LookUpTable.Constants;
-using static FluteSharp.LookUpTable;
+using static Knapcode.FluteSharp.LookUpTable.Constants;
+using static Knapcode.FluteSharp.LookUpTable;
 
-internal class Program
+namespace Knapcode.FluteSharp;
+
+public static class FLUTE
 {
     private const int MAXD = 150;
 
-    private static void Main(string[] args)
+    public static Tree Execute(IReadOnlyList<Point> points)
     {
-        Initialize();
-
-        string? line;
-        var points = new List<Point>();
-        while ((line = Console.In.ReadLine()) != null)
-        {
-            var pieces = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            points.Add(new Point(int.Parse(pieces[0]), int.Parse(pieces[1])));
-        }
-
-        var flutetree = Flute(points, 3);
-        Console.WriteLine($"FLUTE wirelength = {flutetree.length}");
+        return Execute(points, accuracy: 3);
     }
 
-    public static Tree Flute(IReadOnlyList<Point> points, int acc)
+    public static Tree Execute(IReadOnlyList<Point> points, int accuracy)
     {
         if (points.Count == 1)
         {
             return new Tree
             {
-                deg = 1,
-                length = 0,
-                branch = new[]
+                Deg = 1,
+                Length = 0,
+                Branch = new[]
                 {
                     new Branch
                     {
-                        x = points[0].X,
-                        y = points[0].Y,
-                        n = 0,
+                        X = points[0].X,
+                        Y = points[0].Y,
+                        N = 0,
                     },
                 }
             };
@@ -46,21 +36,21 @@ internal class Program
         {
             return new Tree
             {
-                deg = 2,
-                length = GetManhattanDistance(points[0], points[1]),
-                branch = new[] 
+                Deg = 2,
+                Length = GetManhattanDistance(points[0], points[1]),
+                Branch = new[] 
                 {
                     new Branch
                     {
-                        x = points[0].X,
-                        y = points[0].Y,
-                        n = 1,
+                        X = points[0].X,
+                        Y = points[0].Y,
+                        N = 1,
                     },
                     new Branch
                     {
-                        x = points[1].X,
-                        y = points[1].Y,
-                        n = 1,
+                        X = points[1].X,
+                        Y = points[1].Y,
+                        N = 1,
                     },
                 }
             };
@@ -80,7 +70,12 @@ internal class Program
             s[i] = pointsAndIndexByY[i].Index;
         }
 
-        return flutes(points.Count, xs, ys, s, acc);
+        return flutes(points.Count, xs, ys, s, accuracy);
+    }
+
+    private static int GetManhattanDistance(Point a, Point b)
+    {
+        return Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);
     }
 
     private static Tree flutes(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
@@ -107,31 +102,31 @@ internal class Program
         int hflip;
         Tree t = new Tree();
 
-        t.deg = d;
-        t.branch = new Branch[2 * d - 2];
+        t.Deg = d;
+        t.Branch = new Branch[2 * d - 2];
         if (d == 2) {
             minl = xs[1]-xs[0]+ys[1]-ys[0];
-            t.branch[0].x = xs[s[0]];
-            t.branch[0].y = ys[0];
-            t.branch[0].n = 1;
-            t.branch[1].x = xs[s[1]];
-            t.branch[1].y = ys[1];
-            t.branch[1].n = 1;
+            t.Branch[0].X = xs[s[0]];
+            t.Branch[0].Y = ys[0];
+            t.Branch[0].N = 1;
+            t.Branch[1].X = xs[s[1]];
+            t.Branch[1].Y = ys[1];
+            t.Branch[1].N = 1;
         }
         else if (d == 3) {
             minl = xs[2]-xs[0]+ys[2]-ys[0];
-            t.branch[0].x = xs[s[0]];
-            t.branch[0].y = ys[0];
-            t.branch[0].n = 3;
-            t.branch[1].x = xs[s[1]];
-            t.branch[1].y = ys[1];
-            t.branch[1].n = 3;
-            t.branch[2].x = xs[s[2]];
-            t.branch[2].y = ys[2];
-            t.branch[2].n = 3;
-            t.branch[3].x = xs[1];
-            t.branch[3].y = ys[1];
-            t.branch[3].n = 3;
+            t.Branch[0].X = xs[s[0]];
+            t.Branch[0].Y = ys[0];
+            t.Branch[0].N = 3;
+            t.Branch[1].X = xs[s[1]];
+            t.Branch[1].Y = ys[1];
+            t.Branch[1].N = 3;
+            t.Branch[2].X = xs[s[2]];
+            t.Branch[2].Y = ys[2];
+            t.Branch[2].N = 3;
+            t.Branch[3].X = xs[1];
+            t.Branch[3].Y = ys[1];
+            t.Branch[3].N = 3;
         }
         else {
             k = 0;
@@ -183,67 +178,67 @@ internal class Program
                 l[j++] = sum;
             }
         
-            t.branch[0].x = xs[s[0]];
-            t.branch[0].y = ys[0];
-            t.branch[1].x = xs[s[1]];
-            t.branch[1].y = ys[1];
+            t.Branch[0].X = xs[s[0]];
+            t.Branch[0].Y = ys[0];
+            t.Branch[1].X = xs[s[1]];
+            t.Branch[1].Y = ys[1];
             for (i=2; i<d-2; i++) {
-                t.branch[i].x = xs[s[i]];
-                t.branch[i].y = ys[i];
-                t.branch[i].n = bestrlist.neighbor[i];
+                t.Branch[i].X = xs[s[i]];
+                t.Branch[i].Y = ys[i];
+                t.Branch[i].N = bestrlist.neighbor[i];
             }
-            t.branch[d-2].x = xs[s[d-2]];
-            t.branch[d-2].y = ys[d-2];
-            t.branch[d-1].x = xs[s[d-1]];
-            t.branch[d-1].y = ys[d-1];
+            t.Branch[d-2].X = xs[s[d-2]];
+            t.Branch[d-2].Y = ys[d-2];
+            t.Branch[d-1].X = xs[s[d-1]];
+            t.Branch[d-1].Y = ys[d-1];
             if (hflip > 0) {
                 if (s[1] < s[0]) {
-                    t.branch[0].n = bestrlist.neighbor[1];
-                    t.branch[1].n = bestrlist.neighbor[0];
+                    t.Branch[0].N = bestrlist.neighbor[1];
+                    t.Branch[1].N = bestrlist.neighbor[0];
                 }
                 else {
-                    t.branch[0].n = bestrlist.neighbor[0];
-                    t.branch[1].n = bestrlist.neighbor[1];
+                    t.Branch[0].N = bestrlist.neighbor[0];
+                    t.Branch[1].N = bestrlist.neighbor[1];
                 }
                 if (s[d-1] < s[d-2]) {
-                    t.branch[d-2].n = bestrlist.neighbor[d-1];
-                    t.branch[d-1].n = bestrlist.neighbor[d-2];
+                    t.Branch[d-2].N = bestrlist.neighbor[d-1];
+                    t.Branch[d-1].N = bestrlist.neighbor[d-2];
                 }
                 else {
-                    t.branch[d-2].n = bestrlist.neighbor[d-2];
-                    t.branch[d-1].n = bestrlist.neighbor[d-1];
+                    t.Branch[d-2].N = bestrlist.neighbor[d-2];
+                    t.Branch[d-1].N = bestrlist.neighbor[d-1];
                 }
                 for (i=d; i<2*d-2; i++) {
-                    t.branch[i].x = xs[d-1-bestrlist.rowcol[i-d]%16];
-                    t.branch[i].y = ys[bestrlist.rowcol[i-d]/16];
-                    t.branch[i].n = bestrlist.neighbor[i];
+                    t.Branch[i].X = xs[d-1-bestrlist.rowcol[i-d]%16];
+                    t.Branch[i].Y = ys[bestrlist.rowcol[i-d]/16];
+                    t.Branch[i].N = bestrlist.neighbor[i];
                     }
             }
             else {  // !hflip
                 if (s[0] < s[1]) {
-                    t.branch[0].n = bestrlist.neighbor[1];
-                    t.branch[1].n = bestrlist.neighbor[0];
+                    t.Branch[0].N = bestrlist.neighbor[1];
+                    t.Branch[1].N = bestrlist.neighbor[0];
                 }
                 else {
-                    t.branch[0].n = bestrlist.neighbor[0];
-                    t.branch[1].n = bestrlist.neighbor[1];
+                    t.Branch[0].N = bestrlist.neighbor[0];
+                    t.Branch[1].N = bestrlist.neighbor[1];
                 }
                 if (s[d-2] < s[d-1]) {
-                    t.branch[d-2].n = bestrlist.neighbor[d-1];
-                    t.branch[d-1].n = bestrlist.neighbor[d-2];
+                    t.Branch[d-2].N = bestrlist.neighbor[d-1];
+                    t.Branch[d-1].N = bestrlist.neighbor[d-2];
                 }
                 else {
-                    t.branch[d-2].n = bestrlist.neighbor[d-2];
-                    t.branch[d-1].n = bestrlist.neighbor[d-1];
+                    t.Branch[d-2].N = bestrlist.neighbor[d-2];
+                    t.Branch[d-1].N = bestrlist.neighbor[d-1];
                 }
                 for (i=d; i<2*d-2; i++) {
-                    t.branch[i].x = xs[bestrlist.rowcol[i-d]%16];
-                    t.branch[i].y = ys[bestrlist.rowcol[i-d]/16];
-                    t.branch[i].n = bestrlist.neighbor[i];
+                    t.Branch[i].X = xs[bestrlist.rowcol[i-d]%16];
+                    t.Branch[i].Y = ys[bestrlist.rowcol[i-d]/16];
+                    t.Branch[i].N = bestrlist.neighbor[i];
                 }
             }
         }
-        t.length = minl;
+        t.Length = minl;
     
         return t;
     }
@@ -463,7 +458,7 @@ internal class Program
         minl = int.MaxValue;
         bestt1 = new Tree();
         bestt2 = new Tree();
-        bestt1.branch = bestt2.branch = Array.Empty<Branch>();
+        bestt1.Branch = bestt2.Branch = Array.Empty<Branch>();
         for (i=0; i<acc; i++) {
             maxbp = 0;
             for (bp=1; bp<nbp; bp++)
@@ -495,13 +490,13 @@ internal class Program
 
                 t1 = flutes(p+1, xs, y1, s1, newacc);
                 t2 = flutes(d-p, xs.Slice(p), y2, s2, newacc);
-                ll = t1.length + t2.length;
-                coord1 = t1.branch[t1.branch[nn1].n].y;
-                coord2 = t2.branch[t2.branch[nn2].n].y;
-                if (t2.branch[nn2].y > Math.Max(coord1, coord2))
-                    ll -= t2.branch[nn2].y - Math.Max(coord1, coord2);
-                else if (t2.branch[nn2].y < Math.Min(coord1, coord2))
-                    ll -= Math.Min(coord1, coord2) - t2.branch[nn2].y;
+                ll = t1.Length + t2.Length;
+                coord1 = t1.Branch[t1.Branch[nn1].N].Y;
+                coord2 = t2.Branch[t2.Branch[nn2].N].Y;
+                if (t2.Branch[nn2].Y > Math.Max(coord1, coord2))
+                    ll -= t2.Branch[nn2].Y - Math.Max(coord1, coord2);
+                else if (t2.Branch[nn2].Y < Math.Min(coord1, coord2))
+                    ll -= Math.Min(coord1, coord2) - t2.Branch[nn2].Y;
             }
             else {  // if (!BreakInX(maxbp))
                 n1 = n2 = 0;
@@ -525,13 +520,13 @@ internal class Program
 
                 t1 = flutes(p+1, x1, ys, s1, newacc);
                 t2 = flutes(d-p, x2, ys.Slice(p), s2, newacc);
-                ll = t1.length + t2.length;
-                coord1 = t1.branch[t1.branch[p].n].x;
-                coord2 = t2.branch[t2.branch[0].n].x;
-                if (t2.branch[0].x > Math.Max(coord1, coord2))
-                    ll -= t2.branch[0].x - Math.Max(coord1, coord2);
-                else if (t2.branch[0].x < Math.Min(coord1, coord2))
-                    ll -= Math.Min(coord1, coord2) - t2.branch[0].x;
+                ll = t1.Length + t2.Length;
+                coord1 = t1.Branch[t1.Branch[p].N].X;
+                coord2 = t2.Branch[t2.Branch[0].N].X;
+                if (t2.Branch[0].X > Math.Max(coord1, coord2))
+                    ll -= t2.Branch[0].X - Math.Max(coord1, coord2);
+                else if (t2.Branch[0].X < Math.Min(coord1, coord2))
+                    ll -= Math.Min(coord1, coord2) - t2.Branch[0].X;
             }
             if (minl > ll) {
                 minl = ll;
@@ -561,7 +556,56 @@ internal class Program
         return ((bp) % 2 == 0);
     }
 
+    private static Tree dmergetree(Tree t1, Tree t2)
+    {
+        int i, d, prev, curr, next, offset1, offset2;
+        Tree t = new Tree();
 
+        t.Deg = d = t1.Deg + t2.Deg - 2;
+        t.Length = t1.Length + t2.Length;
+        t.Branch = new Branch[2 * d - 2];
+        offset1 = t2.Deg - 2;
+        offset2 = 2 * t1.Deg - 4;
+
+        for (i = 0; i <= t1.Deg - 2; i++)
+        {
+            t.Branch[i].X = t1.Branch[i].X;
+            t.Branch[i].Y = t1.Branch[i].Y;
+            t.Branch[i].N = t1.Branch[i].N + offset1;
+        }
+        for (i = t1.Deg - 1; i <= d - 1; i++)
+        {
+            t.Branch[i].X = t2.Branch[i - t1.Deg + 2].X;
+            t.Branch[i].Y = t2.Branch[i - t1.Deg + 2].Y;
+            t.Branch[i].N = t2.Branch[i - t1.Deg + 2].N + offset2;
+        }
+        for (i = d; i <= d + t1.Deg - 3; i++)
+        {
+            t.Branch[i].X = t1.Branch[i - offset1].X;
+            t.Branch[i].Y = t1.Branch[i - offset1].Y;
+            t.Branch[i].N = t1.Branch[i - offset1].N + offset1;
+        }
+        for (i = d + t1.Deg - 2; i <= 2 * d - 3; i++)
+        {
+            t.Branch[i].X = t2.Branch[i - offset2].X;
+            t.Branch[i].Y = t2.Branch[i - offset2].Y;
+            t.Branch[i].N = t2.Branch[i - offset2].N + offset2;
+        }
+
+        prev = t2.Branch[0].N + offset2;
+        curr = t1.Branch[t1.Deg - 1].N + offset1;
+        next = t.Branch[curr].N;
+        while (curr != next)
+        {
+            t.Branch[curr].N = prev;
+            prev = curr;
+            curr = next;
+            next = t.Branch[curr].N;
+        }
+        t.Branch[curr].N = prev;
+
+        return t;
+    }
 
     private static Tree hmergetree(Tree t1, Tree t2, ReadOnlySpan<int> s)
     {
@@ -570,80 +614,80 @@ internal class Program
         int coord1, coord2;
         Tree t = new Tree();
 
-        t.deg = t1.deg + t2.deg - 1;
-        t.length = t1.length + t2.length;
-        t.branch = new Branch[2 * t.deg - 2];
-        offset1 = t2.deg - 1;
-        offset2 = 2 * t1.deg - 3;
+        t.Deg = t1.Deg + t2.Deg - 1;
+        t.Length = t1.Length + t2.Length;
+        t.Branch = new Branch[2 * t.Deg - 2];
+        offset1 = t2.Deg - 1;
+        offset2 = 2 * t1.Deg - 3;
 
-        p = t1.deg - 1;
+        p = t1.Deg - 1;
         n1 = n2 = 0;
-        for (i = 0; i < t.deg; i++)
+        for (i = 0; i < t.Deg; i++)
         {
             if (s[i] < p)
             {
-                t.branch[i].x = t1.branch[n1].x;
-                t.branch[i].y = t1.branch[n1].y;
-                t.branch[i].n = t1.branch[n1].n + offset1;
+                t.Branch[i].X = t1.Branch[n1].X;
+                t.Branch[i].Y = t1.Branch[n1].Y;
+                t.Branch[i].N = t1.Branch[n1].N + offset1;
                 n1++;
             }
             else if (s[i] > p)
             {
-                t.branch[i].x = t2.branch[n2].x;
-                t.branch[i].y = t2.branch[n2].y;
-                t.branch[i].n = t2.branch[n2].n + offset2;
+                t.Branch[i].X = t2.Branch[n2].X;
+                t.Branch[i].Y = t2.Branch[n2].Y;
+                t.Branch[i].N = t2.Branch[n2].N + offset2;
                 n2++;
             }
             else
             {
-                t.branch[i].x = t2.branch[n2].x;
-                t.branch[i].y = t2.branch[n2].y;
-                t.branch[i].n = t2.branch[n2].n + offset2;
+                t.Branch[i].X = t2.Branch[n2].X;
+                t.Branch[i].Y = t2.Branch[n2].Y;
+                t.Branch[i].N = t2.Branch[n2].N + offset2;
                 nn1 = n1; nn2 = n2; ii = i;
                 n1++; n2++;
             }
         }
-        for (i = t.deg; i <= t.deg + t1.deg - 3; i++)
+        for (i = t.Deg; i <= t.Deg + t1.Deg - 3; i++)
         {
-            t.branch[i].x = t1.branch[i - offset1].x;
-            t.branch[i].y = t1.branch[i - offset1].y;
-            t.branch[i].n = t1.branch[i - offset1].n + offset1;
+            t.Branch[i].X = t1.Branch[i - offset1].X;
+            t.Branch[i].Y = t1.Branch[i - offset1].Y;
+            t.Branch[i].N = t1.Branch[i - offset1].N + offset1;
         }
-        for (i = t.deg + t1.deg - 2; i <= 2 * t.deg - 4; i++)
+        for (i = t.Deg + t1.Deg - 2; i <= 2 * t.Deg - 4; i++)
         {
-            t.branch[i].x = t2.branch[i - offset2].x;
-            t.branch[i].y = t2.branch[i - offset2].y;
-            t.branch[i].n = t2.branch[i - offset2].n + offset2;
+            t.Branch[i].X = t2.Branch[i - offset2].X;
+            t.Branch[i].Y = t2.Branch[i - offset2].Y;
+            t.Branch[i].N = t2.Branch[i - offset2].N + offset2;
         }
-        extra = 2 * t.deg - 3;
-        coord1 = t1.branch[t1.branch[nn1].n].y;
-        coord2 = t2.branch[t2.branch[nn2].n].y;
-        if (t2.branch[nn2].y > Math.Max(coord1, coord2))
+        extra = 2 * t.Deg - 3;
+        coord1 = t1.Branch[t1.Branch[nn1].N].Y;
+        coord2 = t2.Branch[t2.Branch[nn2].N].Y;
+        if (t2.Branch[nn2].Y > Math.Max(coord1, coord2))
         {
-            t.branch[extra].y = Math.Max(coord1, coord2);
-            t.length -= t2.branch[nn2].y - t.branch[extra].y;
+            t.Branch[extra].Y = Math.Max(coord1, coord2);
+            t.Length -= t2.Branch[nn2].Y - t.Branch[extra].Y;
         }
-        else if (t2.branch[nn2].y < Math.Min(coord1, coord2))
+        else if (t2.Branch[nn2].Y < Math.Min(coord1, coord2))
         {
-            t.branch[extra].y = Math.Min(coord1, coord2);
-            t.length -= t.branch[extra].y - t2.branch[nn2].y;
+            t.Branch[extra].Y = Math.Min(coord1, coord2);
+            t.Length -= t.Branch[extra].Y - t2.Branch[nn2].Y;
         }
-        else t.branch[extra].y = t2.branch[nn2].y;
-        t.branch[extra].x = t2.branch[nn2].x;
-        t.branch[extra].n = t.branch[ii].n;
-        t.branch[ii].n = extra;
+        else t.Branch[extra].Y = t2.Branch[nn2].Y;
+        t.Branch[extra].X = t2.Branch[nn2].X;
+        t.Branch[extra].N = t.Branch[ii].N;
+        t.Branch[ii].N = extra;
 
         prev = extra;
-        curr = t1.branch[nn1].n + offset1;
-        next = t.branch[curr].n;
+        curr = t1.Branch[nn1].N + offset1;
+        next = t.Branch[curr].N;
         while (curr != next)
         {
-            t.branch[curr].n = prev;
+            t.Branch[curr].N = prev;
             prev = curr;
             curr = next;
-            next = t.branch[curr].n;
+            next = t.Branch[curr].N;
         }
-        t.branch[curr].n = prev;
+        t.Branch[curr].N = prev;
 
         return t;
     }
@@ -654,123 +698,68 @@ internal class Program
         int coord1, coord2;
         Tree t = new Tree();
 
-        t.deg = t1.deg + t2.deg - 1;
-        t.length = t1.length + t2.length;
-        t.branch = new Branch[2 * t.deg - 2];
-        offset1 = t2.deg - 1;
-        offset2 = 2 * t1.deg - 3;
+        t.Deg = t1.Deg + t2.Deg - 1;
+        t.Length = t1.Length + t2.Length;
+        t.Branch = new Branch[2 * t.Deg - 2];
+        offset1 = t2.Deg - 1;
+        offset2 = 2 * t1.Deg - 3;
 
-        for (i = 0; i <= t1.deg - 2; i++)
+        for (i = 0; i <= t1.Deg - 2; i++)
         {
-            t.branch[i].x = t1.branch[i].x;
-            t.branch[i].y = t1.branch[i].y;
-            t.branch[i].n = t1.branch[i].n + offset1;
+            t.Branch[i].X = t1.Branch[i].X;
+            t.Branch[i].Y = t1.Branch[i].Y;
+            t.Branch[i].N = t1.Branch[i].N + offset1;
         }
-        for (i = t1.deg - 1; i <= t.deg - 1; i++)
+        for (i = t1.Deg - 1; i <= t.Deg - 1; i++)
         {
-            t.branch[i].x = t2.branch[i - t1.deg + 1].x;
-            t.branch[i].y = t2.branch[i - t1.deg + 1].y;
-            t.branch[i].n = t2.branch[i - t1.deg + 1].n + offset2;
+            t.Branch[i].X = t2.Branch[i - t1.Deg + 1].X;
+            t.Branch[i].Y = t2.Branch[i - t1.Deg + 1].Y;
+            t.Branch[i].N = t2.Branch[i - t1.Deg + 1].N + offset2;
         }
-        for (i = t.deg; i <= t.deg + t1.deg - 3; i++)
+        for (i = t.Deg; i <= t.Deg + t1.Deg - 3; i++)
         {
-            t.branch[i].x = t1.branch[i - offset1].x;
-            t.branch[i].y = t1.branch[i - offset1].y;
-            t.branch[i].n = t1.branch[i - offset1].n + offset1;
+            t.Branch[i].X = t1.Branch[i - offset1].X;
+            t.Branch[i].Y = t1.Branch[i - offset1].Y;
+            t.Branch[i].N = t1.Branch[i - offset1].N + offset1;
         }
-        for (i = t.deg + t1.deg - 2; i <= 2 * t.deg - 4; i++)
+        for (i = t.Deg + t1.Deg - 2; i <= 2 * t.Deg - 4; i++)
         {
-            t.branch[i].x = t2.branch[i - offset2].x;
-            t.branch[i].y = t2.branch[i - offset2].y;
-            t.branch[i].n = t2.branch[i - offset2].n + offset2;
+            t.Branch[i].X = t2.Branch[i - offset2].X;
+            t.Branch[i].Y = t2.Branch[i - offset2].Y;
+            t.Branch[i].N = t2.Branch[i - offset2].N + offset2;
         }
-        extra = 2 * t.deg - 3;
-        coord1 = t1.branch[t1.branch[t1.deg - 1].n].x;
-        coord2 = t2.branch[t2.branch[0].n].x;
-        if (t2.branch[0].x > Math.Max(coord1, coord2))
+        extra = 2 * t.Deg - 3;
+        coord1 = t1.Branch[t1.Branch[t1.Deg - 1].N].X;
+        coord2 = t2.Branch[t2.Branch[0].N].X;
+        if (t2.Branch[0].X > Math.Max(coord1, coord2))
         {
-            t.branch[extra].x = Math.Max(coord1, coord2);
-            t.length -= t2.branch[0].x - t.branch[extra].x;
+            t.Branch[extra].X = Math.Max(coord1, coord2);
+            t.Length -= t2.Branch[0].X - t.Branch[extra].X;
         }
-        else if (t2.branch[0].x < Math.Min(coord1, coord2))
+        else if (t2.Branch[0].X < Math.Min(coord1, coord2))
         {
-            t.branch[extra].x = Math.Min(coord1, coord2);
-            t.length -= t.branch[extra].x - t2.branch[0].x;
+            t.Branch[extra].X = Math.Min(coord1, coord2);
+            t.Length -= t.Branch[extra].X - t2.Branch[0].X;
         }
-        else t.branch[extra].x = t2.branch[0].x;
-        t.branch[extra].y = t2.branch[0].y;
-        t.branch[extra].n = t.branch[t1.deg - 1].n;
-        t.branch[t1.deg - 1].n = extra;
+        else t.Branch[extra].X = t2.Branch[0].X;
+        t.Branch[extra].Y = t2.Branch[0].Y;
+        t.Branch[extra].N = t.Branch[t1.Deg - 1].N;
+        t.Branch[t1.Deg - 1].N = extra;
 
         prev = extra;
-        curr = t1.branch[t1.deg - 1].n + offset1;
-        next = t.branch[curr].n;
+        curr = t1.Branch[t1.Deg - 1].N + offset1;
+        next = t.Branch[curr].N;
         while (curr != next)
         {
-            t.branch[curr].n = prev;
+            t.Branch[curr].N = prev;
             prev = curr;
             curr = next;
-            next = t.branch[curr].n;
+            next = t.Branch[curr].N;
         }
-        t.branch[curr].n = prev;
+        t.Branch[curr].N = prev;
 
         return t;
     }
 
 
-    private static Tree dmergetree(Tree t1, Tree t2)
-    {
-        int i, d, prev, curr, next, offset1, offset2;
-        Tree t = new Tree();
-
-        t.deg = d = t1.deg + t2.deg - 2;
-        t.length = t1.length + t2.length;
-        t.branch = new Branch[2 * d - 2];
-        offset1 = t2.deg - 2;
-        offset2 = 2 * t1.deg - 4;
-
-        for (i = 0; i <= t1.deg - 2; i++)
-        {
-            t.branch[i].x = t1.branch[i].x;
-            t.branch[i].y = t1.branch[i].y;
-            t.branch[i].n = t1.branch[i].n + offset1;
-        }
-        for (i = t1.deg - 1; i <= d - 1; i++)
-        {
-            t.branch[i].x = t2.branch[i - t1.deg + 2].x;
-            t.branch[i].y = t2.branch[i - t1.deg + 2].y;
-            t.branch[i].n = t2.branch[i - t1.deg + 2].n + offset2;
-        }
-        for (i = d; i <= d + t1.deg - 3; i++)
-        {
-            t.branch[i].x = t1.branch[i - offset1].x;
-            t.branch[i].y = t1.branch[i - offset1].y;
-            t.branch[i].n = t1.branch[i - offset1].n + offset1;
-        }
-        for (i = d + t1.deg - 2; i <= 2 * d - 3; i++)
-        {
-            t.branch[i].x = t2.branch[i - offset2].x;
-            t.branch[i].y = t2.branch[i - offset2].y;
-            t.branch[i].n = t2.branch[i - offset2].n + offset2;
-        }
-
-        prev = t2.branch[0].n + offset2;
-        curr = t1.branch[t1.deg - 1].n + offset1;
-        next = t.branch[curr].n;
-        while (curr != next)
-        {
-            t.branch[curr].n = prev;
-            prev = curr;
-            curr = next;
-            next = t.branch[curr].n;
-        }
-        t.branch[curr].n = prev;
-
-        return t;
-    }
-
-    private static int GetManhattanDistance(Point a, Point b)
-    {
-        return Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);
-    }
 }

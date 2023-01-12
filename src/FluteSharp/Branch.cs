@@ -1,6 +1,8 @@
-﻿public struct Branch
+﻿namespace Knapcode.FluteSharp;
+
+public struct Branch
 {
-    public int x { get; set; }
-    public int y { get; set; }
-    public int n { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int N { get; set; }
 }

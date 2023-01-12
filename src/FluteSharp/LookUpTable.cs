@@ -58,30 +58,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using static FluteSharp.LookUpTable.Constants;
+using static Knapcode.FluteSharp.LookUpTable.Constants;
 
-namespace FluteSharp;
-
-internal class Csoln
-{
-    public Csoln()
-    {
-        seg = new byte[11];
-        rowcol = new byte[D - 2];
-        neighbor = new byte[2 * D - 2];
-    }
-
-    public byte parent;
-    public byte[] seg;  // Add: 0..i, Sub: j..10; seg[i+1]=seg[j-1]=0
-    public byte[] rowcol;  // row = rowcol[]/16, col = rowcol[]%16, 
-    public byte[] neighbor;
-}
+namespace Knapcode.FluteSharp;
 
 public static class LookUpTable
 {

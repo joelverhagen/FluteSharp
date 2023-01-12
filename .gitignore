@@ -398,4 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Custom
-/src/FluteSharp/Properties/launchSettings.json
+/src/Sandbox/Properties/launchSettings.json
