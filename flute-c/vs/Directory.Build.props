@@ -5,6 +5,14 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Content Include="..\..\POST9.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\POWV9.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="..\..\bookshelf_IO.h" />
     <ClInclude Include="..\..\dist.h" />
     <ClInclude Include="..\..\dl.h" />
