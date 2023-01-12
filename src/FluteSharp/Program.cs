@@ -89,28 +89,11 @@ internal class Program
         {
             return flutes_LD(d, xs, ys, s, acc);
         }
-        else if (d <= D1(acc))
-        {
-            return flutes_MD(d, xs, ys, s, acc);
-        }
-        else
-        {
-            return flutes_HD(d, xs, ys, s, acc);
-        }
-    }
-
-    private static Tree flutes_LMD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
-    {
-        if (d <= D)
-        {
-            return flutes_LD(d, xs, ys, s, acc);
-        }
         else
         {
             return flutes_MD(d, xs, ys, s, acc);
         }
     }
-    
 
     private static Tree flutes_LD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
     {
@@ -296,8 +279,8 @@ internal class Program
                 for (i=1; i<=d-1-ms; i++)
                     s2[i] = s[i+ms]-ms;
 
-                t1 = flutes_LMD(ms+2, x1, y1, s1, acc);
-                t2 = flutes_LMD(d-ms, xs.Slice(ms), ys.Slice(ms), s2, acc);
+                t1 = flutes(ms+2, x1, y1, s1, acc);
+                t2 = flutes(d-ms, xs.Slice(ms), ys.Slice(ms), s2, acc);
                 t = dmergetree(t1, t2);
             
                 return t;
@@ -324,8 +307,8 @@ internal class Program
                 for (i=1; i<=ms; i++)
                     s2[i] = s[i+d-1-ms];
             
-                t1 = flutes_LMD(d+1-ms, x1, y1, s1, acc);
-                t2 = flutes_LMD(ms+1, xs, ys.Slice(d-1-ms), s2, acc);
+                t1 = flutes(d+1-ms, x1, y1, s1, acc);
+                t2 = flutes(ms+1, xs, ys.Slice(d-1-ms), s2, acc);
                 t = dmergetree(t1, t2);
             
                 return t;
@@ -510,8 +493,8 @@ internal class Program
                     }
                 }
 
-                t1 = flutes_LMD(p+1, xs, y1, s1, newacc);
-                t2 = flutes_LMD(d-p, xs.Slice(p), y2, s2, newacc);
+                t1 = flutes(p+1, xs, y1, s1, newacc);
+                t2 = flutes(d-p, xs.Slice(p), y2, s2, newacc);
                 ll = t1.length + t2.length;
                 coord1 = t1.branch[t1.branch[nn1].n].y;
                 coord2 = t2.branch[t2.branch[nn2].n].y;
@@ -540,8 +523,8 @@ internal class Program
                     }
                 }
 
-                t1 = flutes_LMD(p+1, x1, ys, s1, newacc);
-                t2 = flutes_LMD(d-p, x2, ys.Slice(p), s2, newacc);
+                t1 = flutes(p+1, x1, ys, s1, newacc);
+                t2 = flutes(d-p, x2, ys.Slice(p), s2, newacc);
                 ll = t1.length + t2.length;
                 coord1 = t1.branch[t1.branch[p].n].x;
                 coord2 = t2.branch[t2.branch[0].n].x;
@@ -784,31 +767,6 @@ internal class Program
         t.branch[curr].n = prev;
 
         return t;
-    }
-
-    private static Tree flutes_HD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static double TAU(int A)
-    {
-        return 8 + 1.3 * A;
-    }
-
-    private static int D1(int A)
-    {
-        return 25 + 120 / (A * A);
-    }
-
-    private static int D2(int A)
-    {
-        return A <= 6 ? 500 : 75 + 5 * A;
-    }
-
-    private static Tree Flutes_HD(int[] xs, int[] ys, int[] s, int acc)
-    {
-        throw new NotImplementedException();
     }
 
     private static int GetManhattanDistance(Point a, Point b)
