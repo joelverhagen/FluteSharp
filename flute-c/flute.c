@@ -550,7 +550,7 @@ static int orderx(const void *a, const void *b)
 
     if (pa->x < pb->x) return -1;
     if (pa->x > pb->x) return 1;
-    return 0;
+    return pa->o - pb->o;
 }
 
 static int ordery(const void *a, const void *b)
@@ -562,7 +562,7 @@ static int ordery(const void *a, const void *b)
 
     if (pa->y < pb->y) return -1;
     if (pa->y > pb->y) return 1;
-    return 0;
+    return pa->o - pb->o;
 }
 
 Tree flute(int d, DTYPE x[], DTYPE y[], int acc)
@@ -594,27 +594,12 @@ Tree flute(int d, DTYPE x[], DTYPE y[], int acc)
         for (i=0; i<d; i++) {
             pt[i].x = x[i];
             pt[i].y = y[i];
+            pt[i].o = i;
             ptp[i] = &pt[i];
         }
 
         // sort x
-        if (d<200) {
-            for (i=0; i<d-1; i++) {
-                minval = ptp[i]->x;
-                minidx = i;
-                for (j=i+1; j<d; j++) {
-                    if (minval > ptp[j]->x) {
-                        minval = ptp[j]->x;
-                        minidx = j;
-                    }
-                }
-                tmpp = ptp[i];
-                ptp[i] = ptp[minidx];
-                ptp[minidx] = tmpp;
-            }
-        } else {
-            qsort(ptp, d, sizeof(struct point *), orderx);
-        }
+        qsort(ptp, d, sizeof(struct point*), orderx);
 
 #if REMOVE_DUPLICATE_PIN==1
         ptp[d] = &pt[d];
@@ -636,28 +621,10 @@ Tree flute(int d, DTYPE x[], DTYPE y[], int acc)
         }
 
         // sort y to find s[]
-        if (d<200) {
-            for (i=0; i<d-1; i++) {
-                minval = ptp[i]->y;
-                minidx = i;
-                for (j=i+1; j<d; j++) {
-                    if (minval > ptp[j]->y) {
-                        minval = ptp[j]->y;
-                        minidx = j;
-                    }
-                }
-                ys[i] = ptp[minidx]->y;
-                s[i] = ptp[minidx]->o;
-                ptp[minidx] = ptp[i];
-            }
-            ys[d-1] = ptp[d-1]->y;
-            s[d-1] = ptp[d-1]->o;
-        } else {
-            qsort(ptp, d, sizeof(struct point *), ordery);
-            for (i=0; i<d; i++) {
-                ys[i] = ptp[i]->y;
-                s[i] = ptp[i]->o;
-            }
+        qsort(ptp, d, sizeof(struct point*), ordery);
+        for (i = 0; i < d; i++) {
+            ys[i] = ptp[i]->y;
+            s[i] = ptp[i]->o;
         }
         
         t = flutes(d, xs, ys, s, acc);
