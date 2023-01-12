@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33209.295
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flute-net", "flute-net\flute-net.vcxproj", "{A5DD7655-70DA-4AA5-955F-39D37DE85080}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flute-net", "flute-c\vs\flute-net\flute-net.vcxproj", "{A5DD7655-70DA-4AA5-955F-39D37DE85080}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flute-ckt", "flute-ckt\flute-ckt.vcxproj", "{7D32686A-AC28-40E7-AF4B-BA6800611152}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flute-ckt", "flute-c\vs\flute-ckt\flute-ckt.vcxproj", "{7D32686A-AC28-40E7-AF4B-BA6800611152}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rand-pts", "rand-pts\rand-pts.vcxproj", "{F71615A5-9C2D-4F04-A021-F73538F24FDE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rand-pts", "flute-c\vs\rand-pts\rand-pts.vcxproj", "{F71615A5-9C2D-4F04-A021-F73538F24FDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

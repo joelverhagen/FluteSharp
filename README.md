@@ -4,6 +4,8 @@ A .NET port of [the FLUTE algorithm](https://home.engineering.iastate.edu/~cnchu
 
 **Dr. Chris C. N. Chu** is the author of the algorithm and the associated C implementation. He is a professor at **Iowa State University**. His home page URL is **http://home.engineering.iastate.edu/~cnchu/**.
 
+The Java-based implementation of the LUT reader is by Stefan Mücke. Only the LUT reader is copied from [his Java implementation](https://home.engineering.iastate.edu/~cnchu/Flute.java) and ported to C#.
+
 ## FLUTE license
 
 This license is copied from the [FLUTE website](https://home.engineering.iastate.edu/~cnchu/flute.html#License).
