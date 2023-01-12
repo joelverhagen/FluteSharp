@@ -2,6 +2,7 @@
 using FluteSharp;
 using static FluteSharp.LookUpTable.Constants;
 using static FluteSharp.LookUpTable;
+using System.Xml.Linq;
 
 internal class Program
 {
@@ -80,10 +81,19 @@ internal class Program
             s[i] = pointsAndIndexByY[i].Index;
         }
 
-        return flutes(points.Count, xs, ys, s, acc);
+        var hd = new HighDegreeContext();
+        return flutes(hd, points.Count, xs, ys, s, acc);
     }
 
-    private static Tree flutes(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
+
+    private class HighDegreeContext
+    {
+        public int FIRST_ROUND { get; set; } = 2;
+        public int EARLY_QUIT_CRITERIA { get; set; } = 1;
+        public int D3 { get; set; } = int.MaxValue;
+    }
+
+    private static Tree flutes(HighDegreeContext hd, int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
     {
         if (d <= D)
         {
@@ -95,7 +105,7 @@ internal class Program
         }
         else
         {
-            return flutes_HD(d, xs, ys, s, acc);
+            return flutes_HD(hd,d, xs, ys, s, acc);
         }
     }
 
@@ -786,9 +796,504 @@ internal class Program
         return t;
     }
 
-    private static Tree flutes_HD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
+    private static Tree flutes_HD(HighDegreeContext hd, int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
     {
-        throw new NotImplementedException();
+        int i, A, orig_D3;
+        Tree t;
+        //DTYPE *dist[MAXD], *dist_base;
+        int[][] dist;
+        int[] dist_base;
+        int threshold, threshold_x, threshold_y;
+        int best_round, min_node1, min_node2;
+        int[] nb;
+        int prev_len;
+
+        //Chris
+        if (d <= D2(acc))
+        {
+            if (acc <= 6)
+            {
+                hd.FIRST_ROUND = 0;
+                A = acc;
+            }
+            else
+            {
+                hd.FIRST_ROUND = acc - 6;
+                A = 6 + ((acc - 5) / 4) * 2;  // Even A is better
+            }
+            hd.EARLY_QUIT_CRITERIA = (int)(0.75 * hd.FIRST_ROUND + 0.5);
+
+            dist_base = new int[d];
+            dist = new int[d][];
+            nb = new int[d] (int**)malloc(d * sizeof(int*));
+            for (i = 0; i < d; i++)
+            {
+                dist[i] = &(dist_base[i * d]);
+                nb[i] = (int*)malloc(DEFAULT_QSIZE * sizeof(int));
+                nb[i][0] = DEFAULT_QSIZE;
+                nb[i][1] = 2; // queue head
+            }
+
+            t = flute_mr(d, xs, ys, s, A, FIRST_ROUND,
+                 dist, &threshold_x, &threshold_y, &threshold,
+                 &best_round, &min_node1,
+                 &min_node2, nb);
+        }
+        else
+        {
+            A = acc;
+            orig_D3 = hd.D3;
+            if (orig_D3 >= int.MinValue && d > 1000)
+            {
+                hd.D3 = (d <= 10000) ? 1000 : 10000;
+            }
+            t = flute_am(hd, d, xs, ys, s, A,
+                 out threshold_x, out threshold_y, out threshold);
+            if (orig_D3 >= int.MinValue)
+            {
+                hd.D3 = orig_D3;
+            }
+        }
+
+        return t;
+    }
+
+
+    static Tree flute_am(HighDegreeContext hd, int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc,
+              out int threshold_x, out int threshold_y, out int threshold)
+    {
+        int i, j, k, m, n, itr, node1, node2;
+        int smallest_gap, gap;
+        Tree t, t0;
+        Tree[] subtree;
+        int prev_effort;
+        /*
+        int num_subtree, subroot[MAXPART], suproot[MAXPART], isSuperRoot[MAXD];
+        int tree_id[MAXD], tid, tree_size[MAXD], edges[2*MAXD];
+        int idx[MAXPART], offset[MAXPART], *order[MAXT],
+              order_base[MAXD+10]; //order_base[MAXT*MAXD];
+        DTYPE x[MAXD+MAXPART], y[MAXD+MAXPART];
+        int new_s[MAXD+MAXPART], si[MAXD], xmap[MAXD+MAXPART];
+        */
+        int[] x, y;
+        int num_subtree;
+        int[] subroot = new int[3], suproot = new int[3], isSuperRoot;
+        int[] tree_id, tree_size, edges;
+        int tid;
+        int[] idx = new int[3], offset = new int[3], order_base;
+        Memory<int>[] order = new Memory<int>[3];
+        int[] new_s, si, xmap;
+
+        int maxd = d + 1;
+        x = new int[maxd + 3];
+        y = new int[maxd + 3];
+        isSuperRoot = new int[maxd];
+        tree_id = new int[maxd];
+        tree_size = new int[maxd];
+        edges = new int[maxd * 2];
+        order_base = new int[maxd + 10];
+        new_s = new int[maxd + 3];
+        si = new int[maxd];
+        xmap = new int[maxd + 3];
+
+        /*
+        for (i=0; i<MAXT; i++) {
+          order[i] = &(order_base[i*MAXD]);
+        }
+        */
+
+        for (i = 0; i < d; i++)
+        {
+            x[i] = xs[s[i]];
+            y[i] = ys[i];
+            isSuperRoot[i] = 0;
+        }
+
+        build_rmst((long)d, x, y, edges, tree_id);
+
+        for (i = 0; i < d; i++)
+        {
+            tree_size[i] = 1;  // the node itself
+        }
+
+        suproot[0] = subroot[0] = edges[0];
+        num_subtree = 1;
+
+        /*
+        for (i=2*d-3; i>=0; ) {
+          node2 = edges[i--];
+          node1 = edges[i--];
+          j = tree_size[node1]+tree_size[node2];
+          //if (j >= d/2) {
+          if (j >= d/2 && num_subtree<2) {
+            isSuperRoot[node1] = 1;
+            suproot[num_subtree] = node1;
+            subroot[num_subtree++] = node2;
+          } else {
+            tree_size[node1] = j;
+          }
+        }
+        */
+
+        for (i = 2 * d - 3; i >= 0;)
+        {
+            node2 = edges[i--];
+            node1 = edges[i--];
+            tree_size[node1] += tree_size[node2];
+        }
+
+        j = 0;
+        smallest_gap = Math.Abs(tree_size[j] - (d / 2));
+        for (i = 1; i < d; i++)
+        {
+            gap = Math.Abs(tree_size[i] - (d / 2));
+            if (gap < smallest_gap)
+            {
+                j = i;
+                smallest_gap = gap;
+            }
+        }
+
+        for (i = 2 * d - 3; i >= 0;)
+        {
+            node2 = edges[i--];
+            node1 = edges[i--];
+            if (node2 == j)
+            {
+                isSuperRoot[node1] = 1;
+                suproot[num_subtree] = node1;
+                subroot[num_subtree++] = node2;
+                tree_size[subroot[0]] -= tree_size[j];
+                break;
+            }
+        }
+
+        //assert(num_subtree<=MAXT);
+
+        for (i = 1; i < num_subtree; i++)
+        {
+            tree_id[subroot[i]] = i + 1;
+            tree_size[subroot[i]] += 1;  // to account for the link to parent tree
+        }
+
+        for (i = 0; i < 2 * d - 2;)
+        {
+            node1 = edges[i++];
+            node2 = edges[i++];
+            if (tree_id[node2] == 1)
+            { // non-root node
+                tree_id[node2] = tree_id[node1];
+            }
+        }
+
+        // Find inverse si[] of s[]
+        for (i = 0; i < d; i++)
+            si[s[i]] = i;
+
+        offset[1] = 0;
+        for (i = 1; i < num_subtree; i++)
+        {
+            offset[i + 1] = offset[i] + tree_size[subroot[i - 1]];
+        }
+        //assert(offset[num_subtree]==d+num_subtree-1-tree_size[subroot[num_subtree-1]]);
+
+        for (i = 0; i < num_subtree; i++)
+        {
+            order[i] = order_base.AsMemory().Slice(offset[i + 1]);
+        }
+
+        for (i = 0; i <= num_subtree; i++)
+            idx[i] = 0;
+
+        for (i = 0; i < d; i++)
+        {
+            tid = tree_id[si[i]];
+            j = idx[tid]++;
+            x[offset[tid] + j] = xs[i];
+            xmap[i] = j;
+
+            if (isSuperRoot[si[i]] > 0)
+            {
+                for (k = 1; k < num_subtree; k++)
+                {
+                    if (suproot[k] == si[i])
+                    {
+                        tid = k + 1;
+                        j = idx[tid]++;
+                        x[offset[tid] + j] = xs[i];
+                        xmap[d - 1 + tid] = j;
+                    }
+                }
+            }
+        }
+
+        for (i = 0; i <= num_subtree; i++)
+            idx[i] = 0;
+
+        for (i = 0; i < d; i++)
+        {
+            tid = tree_id[i];
+            j = idx[tid]++;
+            y[offset[tid] + j] = ys[i];
+            new_s[offset[tid] + j] = xmap[s[i]];
+            order[tid - 1].Span[j] = i;
+
+            if (isSuperRoot[i] > 0)
+            {
+                for (k = 1; k < num_subtree; k++)
+                {
+                    if (suproot[k] == i)
+                    {
+                        tid = k + 1;
+                        j = idx[tid]++;
+                        y[offset[tid] + j] = ys[i];
+                        new_s[offset[tid] + j] = xmap[d - 1 + tid];
+                        order[tid - 1].Span[j] = i;
+                    }
+                }
+            }
+        }
+
+        subtree = new Tree[num_subtree];
+        for (i = 1; i <= num_subtree; i++)
+        {
+            if (tree_size[subroot[i - 1]] <= 1)
+            {
+                subtree[i - 1].deg = 0;
+                continue;
+            }
+
+            t = flutes(hd, tree_size[subroot[i - 1]], x.AsSpan().Slice(offset[i]), y.AsSpan().Slice(offset[i]),
+                    new_s.AsSpan().Slice(offset[i]), acc);
+            subtree[i - 1] = t;
+        }
+
+        for (i = 1; i < num_subtree; i++)
+        {
+            //assert(tree_id[suproot[i]] != tree_id[subroot[i]]);
+
+            t = xmergetree(subtree[tree_id[suproot[i]] - 1],
+                   subtree[tree_id[subroot[i]] - 1],
+                   order[tree_id[suproot[i]] - 1],
+                   order[tree_id[subroot[i]] - 1],
+                   xs[s[suproot[i]]], ys[suproot[i]]);
+
+            subtree[tree_id[subroot[i]] - 1].deg = 0;
+            subtree[tree_id[suproot[i]] - 1] = t;
+        }
+
+        t0 = subtree[0];
+
+        t = t0;
+
+        return t;
+    }
+
+    static Tree xmergetree(Tree t1, Tree t2, Memory<int> order1, Memory<int> order2,
+        int cx, int cy)
+    {
+        int i, num, cnt, order_by_x = 1;
+        Tree t;
+        TreeNode* tn1, *tn2, *n1, *p1, **nodes;
+        dl_t list_of_nodes = dl_alloc();
+        DTYPE threshold_x, threshold_y;
+        DTYPE min_x, max_x, max_len, len, gain;
+
+        if (t1.deg <= 0)
+        {
+            for (i = 0; i < t2.deg; i++)
+            {
+                order1.Span[i] = order2.Span[i];
+            }
+            return t2;
+        }
+        else if (t2.deg <= 0)
+        {
+            return t1;
+        }
+
+        redirect(t1, cx, cy);
+        redirect(t2, cx, cy);
+
+        curr_mark = 0;
+        tn1 = createRootedTree(t1, order1, 1, list_of_nodes);
+        tn2 = createRootedTree(t2, order2, 2, list_of_nodes);
+
+        num = dl_length(list_of_nodes);
+        nodes = (TreeNode**)malloc(sizeof(TreeNode*) * num);
+        i = 0;
+        dl_forall(TreeNode *, list_of_nodes, n1) {
+            nodes[i++] = n1;
+        }
+        dl_endfor;
+        dl_clear(list_of_nodes);
+
+        qsort(nodes, num, sizeof(TreeNode*), cmpNodeByYX);
+
+        max_len = 0;
+        min_x = max_x = nodes[0]->x;
+        for (i = 0; i < num; i++)
+        {
+            n1 = nodes[i];
+            p1 = n1->parent;
+            if (p1)
+            {
+                len = ADIFF(n1->x, p1->x) + ADIFF(n1->y, p1->y);
+                if (len > max_len)
+                {
+                    max_len = len;
+                }
+            }
+            if (n1->x < min_x)
+            {
+                min_x = n1->x;
+            }
+            else if (n1->x > max_x)
+            {
+                max_x = n1->x;
+            }
+        }
+
+        threshold_x = (max_x - min_x) / 4;
+        threshold_y = (nodes[num - 1]->y - nodes[0]->y) / 4;
+
+        threshold_x = min(threshold_x, max_len);
+        threshold_y = min(threshold_y, max_len);
+
+        for (cnt = (t1.deg + t2.deg) / 2; cnt > 0; cnt--)
+        {
+            gain = (order_by_x) ?
+              exchange_branches_order_x(num, nodes, threshold_x, threshold_y, max_len) :
+              exchange_branches_order_y(num, nodes, threshold_x, threshold_y, max_len);
+
+            //assert(gain>=0);
+
+            if (gain <= 0 && !order_by_x)
+            {
+                break;
+            }
+            if (cnt > 1)
+            {
+                collect_nodes(tn1, list_of_nodes);
+                num = dl_length(list_of_nodes);
+                if (num <= 1)
+                {
+                    break;
+                }
+
+                collect_nodes(tn2, list_of_nodes);
+                if (dl_length(list_of_nodes) - num <= 1)
+                {
+                    break;
+                }
+
+                free(nodes);
+                num = dl_length(list_of_nodes);
+                nodes = (TreeNode**)malloc(sizeof(TreeNode*) * num);
+                i = 0;
+                dl_forall(TreeNode *, list_of_nodes, n1) {
+                    nodes[i++] = n1;
+                }
+                dl_endfor;
+                dl_clear(list_of_nodes);
+
+                if (order_by_x)
+                {
+                    order_by_x = 0;
+                    qsort(nodes, num, sizeof(TreeNode*), cmpNodeByXY);
+                }
+                else
+                {
+                    order_by_x = 1;
+                    qsort(nodes, num, sizeof(TreeNode*), cmpNodeByYX);
+                }
+            }
+        }
+
+        dl_free(list_of_nodes);
+        free(nodes);
+
+        t = mergeRootedTrees(tn1, tn2, order1);
+
+        free(t1.branch);
+        free(t2.branch);
+
+        return t;
+    }
+
+    private static TreeNode* createRootedTree(Tree t, int* order, int id, dl_t list_of_nodes)
+    {
+        int i, dd, n;
+        TreeNode* root = 0, **nodes, *p;
+
+        dd = t.deg * 2 - 2;
+        nodes = (TreeNode**)malloc(sizeof(TreeNode*) * dd);
+        for (i = 0; i < dd; i++)
+        {
+            nodes[i] = (TreeNode*)malloc(sizeof(TreeNode));
+            nodes[i]->mark = curr_mark;
+            nodes[i]->children = dl_alloc();
+        }
+
+        curr_mark++;
+        for (i = 0; i < dd; i++)
+        {
+            nodes[i]->mark = curr_mark;
+            n = t.branch[i].n;
+            if (i == n)
+            {
+                if (i < t.deg)
+                {
+                    //assert(root==0);
+                    nodes[i]->parent = 0;
+                    root = nodes[i];
+                }
+                else
+                {  /* must be redundant */
+                    dl_free(nodes[i]->children);
+                    free(nodes[i]);
+                    nodes[i] = 0;
+                    continue;
+                }
+            }
+            else
+            {
+                p = nodes[n];
+                nodes[i]->parent = p;
+                dl_append(TreeNode *, p->children, nodes[i]);
+            }
+            nodes[i]->order = (i < t.deg) ? order[i] : -1;
+            nodes[i]->id = id;
+            nodes[i]->x = t.branch[i].x;
+            nodes[i]->y = t.branch[i].y;
+
+            /* len will be computed in update_subtree 
+            nodes[i]->blen =
+              ADIFF(t.branch[i].x, t.branch[n].x)+ADIFF(t.branch[i].y, t.branch[n].y);
+
+            nodes[i]->e = nodes[i];
+            nodes[i]->len =
+              ADIFF(t.branch[i].x, t.branch[n].x)+ADIFF(t.branch[i].y, t.branch[n].y);
+            */
+
+            dl_append(TreeNode *, list_of_nodes, nodes[i]);
+        }
+
+        //assert(root);
+
+        update_subtree(root, 0);
+
+        for (i = 0; i < dd; i++)
+        {
+            if (nodes[i] && nodes[i]->mark != curr_mark)
+            {
+                dl_free(nodes[i]->children);
+                free(nodes[i]);
+            }
+        }
+
+        free(nodes);
+        return root;
     }
 
     private static double TAU(int A)
@@ -804,11 +1309,6 @@ internal class Program
     private static int D2(int A)
     {
         return A <= 6 ? 500 : 75 + 5 * A;
-    }
-
-    private static Tree Flutes_HD(int[] xs, int[] ys, int[] s, int acc)
-    {
-        throw new NotImplementedException();
     }
 
     private static int GetManhattanDistance(Point a, Point b)
