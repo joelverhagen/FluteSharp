@@ -1,9 +1,46 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>11.0</LangVersion>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>Knapcode.FluteSharp</AssemblyName>
+    <RootNamespace>Knapcode.FluteSharp</RootNamespace>
+    <AssemblyOriginatorKeyFile>..\..\FluteSharp.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageId>Knapcode.FluteSharp</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Joel Verhagen, Dr. Chris C. N. Chu, Stefan Mücke</Authors>
+    <Copyright>Copyright © 2023 Joel Verhagen, Dr. Chris C. N. Chu, Stefan Mücke</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>A .NET implementation of the FLUTE algorithm.</Description>
+    <PackageProjectUrl>https://github.com/joelverhagen/FluteSharp</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>flute minimum spanning tree rectilinear steiner mrst rsmt hanan grid manhattan taxicab</PackageTags>
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>

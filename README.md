@@ -6,6 +6,10 @@ A .NET port of [the FLUTE algorithm](https://home.engineering.iastate.edu/~cnchu
 
 The Java-based implementation of the LUT reader is by Stefan Mücke. Only the LUT reader is copied from [his Java implementation](https://home.engineering.iastate.edu/~cnchu/Flute.java) and ported to C#.
 
+## Example
+
+See the sample in [`src/Sandbox/Program.cs`](https://github.com/joelverhagen/FluteSharp/blob/main/src/Sandbox/Program.cs)
+
 ## FLUTE license
 
 This license is copied from the [FLUTE website](https://home.engineering.iastate.edu/~cnchu/flute.html#License).
