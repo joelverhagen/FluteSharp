@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup>
-    <OutDir>$(SolutionDir)\bin\rand-pts\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\obj\rand-pts\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)artifacts\flute-c\rand-pts\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)artifacts\flute-c\rand-pts\obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -1,0 +1,29 @@
+<Project>
+  
+  <PropertyGroup>
+    <ArtifactsDirectory Condition="'$(ArtifactsDirectory)' == ''">$(MSBuildThisFileDirectory)artifacts\</ArtifactsDirectory>
+    <_ArtifactsDirectory>$([MSBuild]::EnsureTrailingSlash($(ArtifactsDirectory)))</_ArtifactsDirectory>
+    <_ProjectArtifactsDirectory>$(_ArtifactsDirectory)$(MSBuildProjectName)\</_ProjectArtifactsDirectory>
+    <BaseIntermediateOutputPath>$(_ProjectArtifactsDirectory)obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <BaseOutputPath>$(_ProjectArtifactsDirectory)bin\</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)$(Configuration)\</OutputPath>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <FluteSharpStableVersion>0.1.0</FluteSharpStableVersion>
+
+    <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_HEAD_REF)' != ''">$(GITHUB_HEAD_REF)</BranchVersionLabel>
+    <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_REF)' != ''">$(GITHUB_REF)</BranchVersionLabel>
+    <BranchVersionLabel Condition="'$(BranchVersionLabel)' != ''">$([System.Text.RegularExpressions.Regex]::Replace("$(BranchVersionLabel)", "^(.+/)?([^/]+)$", "ci.$2"))</BranchVersionLabel>
+    <BranchVersionLabel Condition="'$(BranchVersionLabel)' == ''">local</BranchVersionLabel>
+
+    <BuildVersionLabel Condition="'$(BuildVersionLabel)' == '' and '$(GITHUB_RUN_NUMBER)' != ''">.$(GITHUB_RUN_NUMBER)</BuildVersionLabel>
+
+    <FluteSharpVersion Condition="$(BUILD_STABLE_VERSION) == 'true'">$(FluteSharpStableVersion)</FluteSharpVersion>
+    <FluteSharpVersion Condition="'$(FluteSharpVersion)' == ''">$(FluteSharpStableVersion)-$(BranchVersionLabel)$(BuildVersionLabel)</FluteSharpVersion>
+
+    <CoreOnly Condition="'$(CoreOnly)' == '' and !$([MSBuild]::IsOSPlatform('Windows'))">true</CoreOnly>
+  </PropertyGroup>
+  
+</Project>

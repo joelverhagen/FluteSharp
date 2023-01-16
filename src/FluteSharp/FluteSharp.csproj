@@ -15,7 +15,7 @@
   
   <PropertyGroup>
     <PackageId>Knapcode.FluteSharp</PackageId>
-    <Version>0.1.0</Version>
+    <Version>$(FluteSharpVersion)</Version>
     <Authors>Joel Verhagen, Dr. Chris C. N. Chu, Stefan Mücke</Authors>
     <Copyright>Copyright © 2023 Joel Verhagen, Dr. Chris C. N. Chu, Stefan Mücke</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -42,5 +42,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <PropertyGroup>
+    <BeforePack>OutputVersion</BeforePack>
+  </PropertyGroup>
+
+  <Target Name="OutputVersion">
+    <Message Text="FluteSharp version: $(FluteSharpVersion)" Importance="high" />
+  </Target>
 
 </Project>
