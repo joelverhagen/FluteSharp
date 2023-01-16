@@ -1,7 +1,6 @@
 # FluteSharp
 
-
-[![Latest version](https://img.shields.io/nuget/v/Knapcode.FluteSharp)](https://www.nuget.org/packages/Knapcode.TorSharp) ![Build](https://github.com/joelverhagen/FluteSharp/workflows/Build/badge.svg)
+[![Latest version](https://img.shields.io/nuget/v/Knapcode.FluteSharp)](https://www.nuget.org/packages/Knapcode.FluteSharp) ![Build](https://github.com/joelverhagen/FluteSharp/workflows/Build/badge.svg)
 
 A .NET port of [the FLUTE algorithm](https://home.engineering.iastate.edu/~cnchu/flute.html). It is a based on the [FLUTE 3.1 C implementation](https://home.engineering.iastate.edu/~cnchu/flute-3.1/flute-3.1.tgz). Note that I have not ported the high degree optimizations that Chris added in FLUTE 3.0 and 3.1 (e.g. the `flutes_HD` method). For my own purposes I think I can get by with the simpler implementation.
 
