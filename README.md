@@ -1,10 +1,19 @@
 # FluteSharp
 
+
+[![Latest version](https://img.shields.io/nuget/v/Knapcode.FluteSharp)](https://www.nuget.org/packages/Knapcode.TorSharp) ![Build](https://github.com/joelverhagen/FluteSharp/workflows/Build/badge.svg)
+
 A .NET port of [the FLUTE algorithm](https://home.engineering.iastate.edu/~cnchu/flute.html). It is a based on the [FLUTE 3.1 C implementation](https://home.engineering.iastate.edu/~cnchu/flute-3.1/flute-3.1.tgz). Note that I have not ported the high degree optimizations that Chris added in FLUTE 3.0 and 3.1 (e.g. the `flutes_HD` method). For my own purposes I think I can get by with the simpler implementation.
 
 **Dr. Chris C. N. Chu** is the author of the algorithm and the associated C implementation. He is a professor at **Iowa State University**. His home page URL is **http://home.engineering.iastate.edu/~cnchu/**.
 
 The Java-based implementation of the LUT reader is by Stefan Mücke. Only the LUT reader is copied from [his Java implementation](https://home.engineering.iastate.edu/~cnchu/Flute.java) and ported to C#.
+
+## Install
+
+```
+dotnet add package Knapcode.FluteSharp
+```
 
 ## Example
 
