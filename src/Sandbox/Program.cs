@@ -18,6 +18,29 @@ while ((line = Console.In.ReadLine()) != null)
 
 var flute = new FLUTE(lut);
 var flutetree = flute.Execute(points);
-Console.WriteLine($"FLUTE wirelength = {flutetree.Length}");
 
-Console.WriteLine("Done.");
+// print all of the paths
+var paths = new HashSet<string>();
+for (int i = 0; i < flutetree.Branch.Length; i++)
+{
+    var current = flutetree.Branch[i];
+
+    while (true)
+    {
+        var next = flutetree.Branch[current.N];
+
+        var path = $"{current.X} {current.Y} {next.X} {next.Y}";
+
+        if (paths.Add(path))
+        {
+            Console.WriteLine(path);
+        }
+
+        if (current.N == next.N)
+        {
+            break;
+        }
+
+        current = next;
+    }
+}
