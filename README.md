@@ -14,7 +14,7 @@ See the sample in [`src/Sandbox/Program.cs`](https://github.com/joelverhagen/Flu
 
 This license is copied from the [FLUTE website](https://home.engineering.iastate.edu/~cnchu/flute.html#License).
 
-```
+```plaintext
 READ THIS LICENSE AGREEMENT CAREFULLY BEFORE USING THIS PRODUCT. BY USING THIS PRODUCT YOU INDICATE YOUR ACCEPTANCE OF THE TERMS OF THE FOLLOWING AGREEMENT. THESE TERMS APPLY TO YOU AND ANY SUBSEQUENT LICENSEE OF THIS PRODUCT.
 
 License Agreement for FLUTE
