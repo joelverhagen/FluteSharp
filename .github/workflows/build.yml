@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      build_stable_version:
+        type: boolean
+        description: "Build the stable version of the package for release"
+        required: false
+        default: false
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore FluteSharp.sln
+      
+    - name: Build
+      run: dotnet build FluteSharp.sln --configuration Release --no-restore
+           
+    - name: Pack
+      run: dotnet pack FluteSharp.sln --configuration Release --no-restore --no-build
+      env:
+        BUILD_STABLE_VERSION: ${{ inputs.build_stable_version }}
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: packages
+        path: |
+          artifacts/FluteSharp/bin/Release/*.nupkg
+
+    - name: Push artifacts
+      run: dotnet nuget push artifacts/FluteSharp/bin/Release/*.nupkg -s https://nuget.pkg.github.com/joelverhagen/index.json -k ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
