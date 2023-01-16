@@ -58,17 +58,15 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using static Knapcode.FluteSharp.LookUpTable.Constants;
-
 namespace Knapcode.FluteSharp;
 
 internal class Csoln
 {
-    public Csoln()
+    public Csoln(int d)
     {
         seg = new byte[11];
-        rowcol = new byte[D - 2];
-        neighbor = new byte[2 * D - 2];
+        rowcol = new byte[d - 2];
+        neighbor = new byte[2 * d - 2];
     }
 
     public byte parent;

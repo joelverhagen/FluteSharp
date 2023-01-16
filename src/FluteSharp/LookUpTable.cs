@@ -58,47 +58,49 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using static Knapcode.FluteSharp.LookUpTable.Constants;
-
 namespace Knapcode.FluteSharp;
 
-public static class LookUpTable
+public class LookUpTable
 {
-    internal static class Constants
-    {
-        /// <summary>
-        /// Maximum degree supported by the look-up table.
-        /// </summary>
-        public const int D = 9;
+    /// <summary>
+    /// The default file name for the "potentially optimal wirelength vector" data.
+    /// </summary>
+    public const string POWVFile = "POWV9.dat";
 
-        /// <summary>
-        /// // Max. # of POWVs per group
-        /// </summary>
-        public const int MPOWV = 79;
-
-        /// <summary>
-        /// The default file name for the "potentially optimal wirelength vector" data.
-        /// </summary>
-        public const string POWVFile = "POWV9.dat";
-
-        /// <summary>
-        /// The default file name for the "potentially optimal Steiner tree" data.
-        /// </summary>
-        public const string POSTFile = "POST9.dat";
-    }
+    /// <summary>
+    /// The default file name for the "potentially optimal Steiner tree" data.
+    /// </summary>
+    public const string POSTFile = "POST9.dat";
 
     /// <summary>
     /// Max. # of groups, 9! = 362880
     /// </summary>
     private const int MGROUP = 362880 / 4;
 
-    internal static readonly int[] numgrp = new[] { 0, 0, 0, 0, 6, 30, 180, 1260, 10080, 90720 };
+    /// <summary>
+    /// Maximum degree supported by the look-up table.
+    /// </summary>
+    internal readonly int D = 9;
 
-    internal static readonly Csoln[,][] LUT = new Csoln[D + 1, MGROUP][]; // storing 4 .. D
+    /// <summary>
+    /// Max. # of POWVs per group
+    /// </summary>
+    internal readonly int MPOWV = 79;
 
-    internal static readonly int[,] numsoln = new int[D + 1, MGROUP];
+    internal static readonly IReadOnlyList<int> numgrp = new[] { 0, 0, 0, 0, 6, 30, 180, 1260, 10080, 90720 };
 
-    public static void Initialize()
+    internal readonly Csoln[,][] LUT;
+
+    internal readonly int[,] numsoln;
+
+    public LookUpTable()
+    {
+        LUT = new Csoln[D + 1, MGROUP][]; // storing 4 .. D
+        numsoln = new int[D + 1, MGROUP];
+
+        Initialize();
+    }
+    private void Initialize()
     {
         using var powvStream = File.OpenRead(POWVFile);
         using var postStream = File.OpenRead(POSTFile);
@@ -106,7 +108,7 @@ public static class LookUpTable
         readLUT(powvStream, postStream);
     }
 
-    private static void readLUT(Stream powvStream, Stream postStream)
+    private void readLUT(Stream powvStream, Stream postStream)
     {
         char[] charnum = new char[256];
         char[] lineBuf = new char[32];
@@ -162,7 +164,7 @@ public static class LookUpTable
                     Csoln[] p = new Csoln[ns];
                     for (int i = 0; i < ns; i++)
                     {
-                        p[i] = new Csoln();
+                        p[i] = new Csoln(D);
                     }
                     int poffset = 0; // C# workaround for C-style pointer arithmetic on 'p'
                     LUT[d, k] = p;
@@ -201,7 +203,7 @@ public static class LookUpTable
         }
     }
 
-    private static int readLine(Stream ins, char[] buf)
+    private int readLine(Stream ins, char[] buf)
     {
         int c;
         int i = 0;
@@ -217,7 +219,7 @@ public static class LookUpTable
         return 0;
     }
 
-    private static void readChars(Stream ins, char[] buf, int count)
+    private void readChars(Stream ins, char[] buf, int count)
     {
         for (int i = 0; i < count; i++)
         {
@@ -225,7 +227,7 @@ public static class LookUpTable
         }
     }
 
-    private static int scanNumber(char[] buf, int offset, int[] result)
+    private int scanNumber(char[] buf, int offset, int[] result)
     {
         int c = buf[offset++];
         if (!isDigit(c))
@@ -239,7 +241,7 @@ public static class LookUpTable
         return offset - 1;
     }
 
-    private static int scanString(char[] buf, int offset, string str)
+    private int scanString(char[] buf, int offset, string str)
     {
         int len = str.Length;
         for (int i = 0; i < len; i++)
@@ -255,13 +257,13 @@ public static class LookUpTable
         return offset + len;
     }
 
-    private static void scanEOL(char[] buf, int offset)
+    private void scanEOL(char[] buf, int offset)
     {
         if (buf[offset] != '\n')
             throw new InvalidDataException("Reading error. Expected EOL but got '" + buf[offset] + "'.");
     }
 
-    private static bool isDigit(int c)
+    private bool isDigit(int c)
     {
         return '0' <= c && c <= '9';
     }

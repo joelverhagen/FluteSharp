@@ -1,19 +1,24 @@
 ﻿using System.Drawing;
-using static Knapcode.FluteSharp.LookUpTable.Constants;
-using static Knapcode.FluteSharp.LookUpTable;
 
 namespace Knapcode.FluteSharp;
 
-public static class FLUTE
+public class FLUTE
 {
+    private readonly LookUpTable _lut;
+
     private const int MAXD = 150;
 
-    public static Tree Execute(IReadOnlyList<Point> points)
+    public FLUTE(LookUpTable lut)
+    {
+        _lut = lut;
+    }
+
+    public Tree Execute(IReadOnlyList<Point> points)
     {
         return Execute(points, accuracy: 3);
     }
 
-    public static Tree Execute(IReadOnlyList<Point> points, int accuracy)
+    public Tree Execute(IReadOnlyList<Point> points, int accuracy)
     {
         if (points.Count == 1)
         {
@@ -78,9 +83,9 @@ public static class FLUTE
         return Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);
     }
 
-    private static Tree flutes(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
+    private Tree flutes(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
     {
-        if (d <= D)
+        if (d <= _lut.D)
         {
             return flutes_LD(d, xs, ys, s, acc);
         }
@@ -90,15 +95,15 @@ public static class FLUTE
         }
     }
 
-    private static Tree flutes_LD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
+    private Tree flutes_LD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
     {
         int k, pi, i, j;
         Csoln[] rlistarr;
         int rlisti = 0;
         Csoln bestrlist;
-        int[] dd = new int[2*D-2];  // 0..D-2 for v, D-1..2*D-3 for h
+        int[] dd = new int[2*_lut.D-2];  // 0..D-2 for v, D-1..2*D-3 for h
         int minl, sum;
-        int[] l = new int[MPOWV + 1];
+        int[] l = new int[_lut.MPOWV + 1];
         int hflip;
         Tree t = new Tree();
 
@@ -141,7 +146,7 @@ public static class FLUTE
                 k = pi + (i+1)*k;
             }
         
-            if (k < numgrp[d]) { // no horizontal flip
+            if (k < LookUpTable.numgrp[d]) { // no horizontal flip
                 hflip = 0;
                 for (i=1; i<=d-3; i++) {
                     dd[i]=ys[i+1]-ys[i];
@@ -150,7 +155,7 @@ public static class FLUTE
             }
             else {
                 hflip = 1;
-                k=2*numgrp[d]-1-k;
+                k=2*LookUpTable.numgrp[d]-1-k;
                 for (i=1; i<=d-3; i++) {
                     dd[i]=ys[i+1]-ys[i];
                     dd[d-1+i]=xs[d-1-i]-xs[d-2-i];
@@ -158,13 +163,13 @@ public static class FLUTE
             }
         
             minl = l[0] = xs[d-1]-xs[0]+ys[d-1]-ys[0];
-            rlistarr = LUT[d,k];
+            rlistarr = _lut.LUT[d,k];
             for (i=0; rlistarr[0].seg[i]>0; i++)
                 minl += dd[rlistarr[0].seg[i]];
             bestrlist = rlistarr[0];
             l[1] = minl;
             j = 2;
-            while (j <= numsoln[d,k]) {
+            while (j <= _lut.numsoln[d,k]) {
                 rlisti++;
                 sum = l[rlistarr[rlisti].parent];
                 for (i=0; rlistarr[rlisti].seg[i]>0; i++)
@@ -243,7 +248,7 @@ public static class FLUTE
         return t;
     }
 
-    private static Tree flutes_MD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
+    private Tree flutes_MD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
     {
         int[] x1 = new int[MAXD], x2 = new int[MAXD], y1 = new int[MAXD], y2 = new int[MAXD];
         int[] si = new int[MAXD], s1 = new int[MAXD], s2 = new int[MAXD];
