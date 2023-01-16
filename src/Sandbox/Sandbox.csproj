@@ -8,16 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluteSharp\FluteSharp.csproj" />
+    <None Include="..\..\data\*.dat" LinkBase="data">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\flute-c\POST9.dat" Link="POST9.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\flute-c\POWV9.dat" Link="POWV9.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\FluteSharp\FluteSharp.csproj" />
   </ItemGroup>
 
 </Project>

@@ -63,29 +63,19 @@ namespace Knapcode.FluteSharp;
 public class LookUpTable
 {
     /// <summary>
-    /// The default file name for the "potentially optimal wirelength vector" data.
+    /// Max. # of groups
     /// </summary>
-    public const string POWVFile = "POWV9.dat";
-
-    /// <summary>
-    /// The default file name for the "potentially optimal Steiner tree" data.
-    /// </summary>
-    public const string POSTFile = "POST9.dat";
-
-    /// <summary>
-    /// Max. # of groups, 9! = 362880
-    /// </summary>
-    private const int MGROUP = 362880 / 4;
+    private readonly int MGROUP;
 
     /// <summary>
     /// Maximum degree supported by the look-up table.
     /// </summary>
-    internal readonly int D = 9;
+    internal readonly int D;
 
     /// <summary>
     /// Max. # of POWVs per group
     /// </summary>
-    internal readonly int MPOWV = 79;
+    internal readonly int MPOWV;
 
     internal static readonly IReadOnlyList<int> numgrp = new[] { 0, 0, 0, 0, 6, 30, 180, 1260, 10080, 90720 };
 
@@ -93,17 +83,36 @@ public class LookUpTable
 
     internal readonly int[,] numsoln;
 
-    public LookUpTable()
+    public LookUpTable(int d, Stream powvStream, Stream postStream)
     {
+        if (d < 4 || d > 9)
+        {
+            throw new ArgumentOutOfRangeException(nameof(d), d, "The degree for the look-up table must be between 4 and 9, inclusive.");
+        }
+        
+        if (d <= 7)
+        {
+            MGROUP = 5040 / 4; // 7! = 5040
+            MPOWV = 15;
+        }
+        else if (d == 8)
+        {
+            MGROUP = 40320 / 4; // 8! = 40320
+            MPOWV = 33;
+        }
+        else if (d == 9)
+        {
+            MGROUP = 362880 / 4; // 9! = 362880
+            MPOWV = 79;
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+
+        D = d;
         LUT = new Csoln[D + 1, MGROUP][]; // storing 4 .. D
         numsoln = new int[D + 1, MGROUP];
-
-        Initialize();
-    }
-    private void Initialize()
-    {
-        using var powvStream = File.OpenRead(POWVFile);
-        using var postStream = File.OpenRead(POSTFile);
 
         readLUT(powvStream, postStream);
     }
