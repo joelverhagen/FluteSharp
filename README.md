@@ -10,7 +10,7 @@ The Java-based implementation of the LUT reader is by Stefan Mücke. Only the LU
 
 ## Install
 
-```
+```plaintext
 dotnet add package Knapcode.FluteSharp
 ```
 
