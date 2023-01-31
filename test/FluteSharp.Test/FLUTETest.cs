@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Drawing;
 using System.Text;
 
@@ -18,35 +19,6 @@ public class FLUTETest
         var flute = new FLUTE(lut, maxD);
 
         return flute;
-    }
-
-    [Fact]
-    public void Test1()
-    {
-        var dir = @"C:\z\Git\joelverhagen\FluteSharp\test\FluteSharp.Test\test-data\factorio";
-        foreach ((var d, var flute) in FLUTES)
-        {
-            foreach (var file in Directory.EnumerateFiles(dir))
-            {
-                var name = Path.GetFileNameWithoutExtension(file)!;
-                var input = File.ReadAllText(file);
-                var points = ReadGrid(input);
-                var normalizedInput = PrintGrid(points);
-
-                var testDir = Path.Combine(dir, name);
-                Directory.CreateDirectory(testDir);
-                File.WriteAllText(Path.Combine(testDir, InputFileName), normalizedInput);
-
-                var tree = flute.Execute(points);
-
-                var branchPoints = tree.Branch.Select(b => new Point(b.X, b.Y)).Distinct();
-
-                var neighbors = tree.GetNeighbors();
-
-                var solution = PrintGrid(points, neighbors);
-                File.WriteAllText(Path.Combine(testDir, $"solution-flute-d-{d}.txt"), solution);
-            }
-        }
     }
 
     [Theory]
