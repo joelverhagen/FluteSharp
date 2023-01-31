@@ -8,15 +8,16 @@ public class FLUTETest
 {
     private static readonly bool GenerateTestData = false;
     private const string InputFileName = "input.txt";
-    private static readonly IDictionary<int, FLUTE> FLUTES = Enumerable.Range(4, 6).ToDictionary(d => d, d => GetFLUTE(d, maxD: 200));
 
-    private static FLUTE GetFLUTE(int d, int maxD)
+    private static readonly IDictionary<int, FLUTE> FLUTEs = Enumerable.Range(4, 6).ToDictionary(d => d, GetFLUTE);
+
+    private static FLUTE GetFLUTE(int d)
     {
         using var powvStream = File.OpenRead(Path.Combine("data", $"POWV{d}.dat"));
         using var postStream = File.OpenRead(Path.Combine("data", $"POST{d}.dat"));
 
         var lut = new LookUpTable(d, powvStream, postStream);
-        var flute = new FLUTE(lut, maxD);
+        var flute = new FLUTE(lut);
 
         return flute;
     }
@@ -40,7 +41,7 @@ public class FLUTETest
         }
 
         // Act
-        var tree = FLUTES[d].Execute(points);
+        var tree = FLUTEs[d].Execute(points);
 
         // Assert
         var neighbors = tree.GetNeighbors();
@@ -63,7 +64,7 @@ public class FLUTETest
         {
             foreach (var testCase in TestCaseNames)
             {
-                foreach (var d in FLUTES.Keys)
+                foreach (var d in FLUTEs.Keys)
                 {
                     yield return new object[] { testCase, d };
                 }

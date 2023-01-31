@@ -5,16 +5,10 @@ namespace Knapcode.FluteSharp;
 public class FLUTE
 {
     private readonly LookUpTable _lut;
-    private readonly int _maxD;
 
-    public FLUTE(LookUpTable lut) : this(lut, maxD: 150)
-    {
-    }
-
-    public FLUTE(LookUpTable lut, int maxD)
+    public FLUTE(LookUpTable lut)
     {
         _lut = lut;
-        _maxD = maxD;
     }
 
     public Tree Execute(IReadOnlyList<Point> points)
@@ -254,15 +248,15 @@ public class FLUTE
 
     private Tree flutes_MD(int d, ReadOnlySpan<int> xs, ReadOnlySpan<int> ys, ReadOnlySpan<int> s, int acc)
     {
-        int[] x1 = new int[_maxD], x2 = new int[_maxD], y1 = new int[_maxD], y2 = new int[_maxD];
-        int[] si = new int[_maxD], s1 = new int[_maxD], s2 = new int[_maxD];
-        float[] score = new float[2 * _maxD], penalty = new float[_maxD];
+        int[] x1 = new int[d], x2 = new int[d], y1 = new int[d], y2 = new int[d];
+        int[] si = new int[d], s1 = new int[d], s2 = new int[d];
+        float[] score = new float[2 * d], penalty = new float[d];
         float pnlty, dx, dy;
         int ll, minl, coord1, coord2;
         int i, r, p, maxbp, bestbp = 0, bp, nbp, ub, lb, n1, n2, nn1 = 0, nn2 = 0, newacc;
         Tree t, t1, t2, bestt1, bestt2;
         int ms, mins, maxs, minsi, maxsi;
-        int[] distx = new int[_maxD], disty = new int[_maxD];
+        int[] distx = new int[d], disty = new int[d];
         int xydiff;
 
         if (s[0] < s[d-1]) {
