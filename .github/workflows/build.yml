@@ -31,6 +31,9 @@ jobs:
       
     - name: Build
       run: dotnet build FluteSharp.sln --configuration Release --no-restore
+      
+    - name: Test
+      run: dotnet test FluteSharp.sln --configuration Release --no-restore --no-build
            
     - name: Pack
       run: dotnet pack FluteSharp.sln --configuration Release --no-restore --no-build
