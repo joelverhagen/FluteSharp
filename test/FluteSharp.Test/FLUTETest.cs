@@ -6,7 +6,12 @@ namespace Knapcode.FluteSharp;
 
 public class FLUTETest
 {
+    /// <summary>
+    /// Temporarily set this to <c>true</c> and run <see cref="DataDrivenTest(string, int)"/> to normalize the a new
+    /// input.txt file and generate the associated solution data files.
+    /// </summary>
     private static readonly bool GenerateTestData = false;
+
     private const string InputFileName = "input.txt";
 
     private static readonly IDictionary<int, FLUTE> FLUTEs = Enumerable.Range(4, 6).ToDictionary(d => d, GetFLUTE);
@@ -20,6 +25,12 @@ public class FLUTETest
         var flute = new FLUTE(lut);
 
         return flute;
+    }
+
+    [Fact]
+    public void IsNotGeneratingTestData()
+    {
+        Assert.False(GenerateTestData, "This boolean should never be checked in when set to true.");
     }
 
     [Theory]
