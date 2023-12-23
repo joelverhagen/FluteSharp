@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Knapcode.FluteSharp;
 
@@ -37,7 +38,7 @@ public class Tree
             var point = new Point(branch.X, branch.Y);
             var nextPoint = new Point(nextBranch.X, nextBranch.Y);
 
-            if (point != nextPoint)
+            if (!point.Equals(nextPoint))
             {
                 var neighbors = GetOrAddPoint(point);
                 var nextNeighbors = GetOrAddPoint(nextPoint);

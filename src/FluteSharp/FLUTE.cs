@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Knapcode.FluteSharp;
 
@@ -59,8 +60,37 @@ public class FLUTE
             };
         }
 
-        var pointsByX = points.OrderBy(p => p.X).ToList();
-        var pointsAndIndexByY = pointsByX.Select((p, i) => (Point: p, Index: i)).OrderBy(p => p.Point.Y).ToList();
+        var pointsByX = new List<(Point Point, int Index)>(points.Count);
+        for (var i = 0; i < points.Count; i++)
+        {
+            pointsByX.Add((points[i], i));
+        }
+        pointsByX.Sort(static (a, b) =>
+        {
+            var xComparison = a.Point.X.CompareTo(b.Point.X);
+            if (xComparison != 0)
+            {
+                return xComparison;
+            }
+
+            return a.Index.CompareTo(b.Index);
+        });
+
+        var pointsByY = new List<(Point Point, int Index)>(pointsByX.Count);
+        for (var i = 0; i < pointsByX.Count; i++)
+        {
+            pointsByY.Add((pointsByX[i].Point, i));
+        }
+        pointsByY.Sort(static (a, b) =>
+        {
+            var yComparison = a.Point.Y.CompareTo(b.Point.Y);
+            if (yComparison != 0)
+            {
+                return yComparison;
+            }
+
+            return a.Index.CompareTo(b.Index);
+        });
 
         var xs = new int[points.Count];
         var ys = new int[points.Count];
@@ -68,9 +98,9 @@ public class FLUTE
 
         for (var i = 0; i < points.Count; i++)
         {
-            xs[i] = pointsByX[i].X;
-            ys[i] = pointsAndIndexByY[i].Point.Y;
-            s[i] = pointsAndIndexByY[i].Index;
+            xs[i] = pointsByX[i].Point.X;
+            ys[i] = pointsByY[i].Point.Y;
+            s[i] = pointsByY[i].Index;
         }
 
         return flutes(points.Count, xs, ys, s, accuracy);

@@ -2,6 +2,12 @@
  * The Java-based implementation of the LUT reader is by Stefan Mücke. Only the LUT reader is copied from his Java implementation and ported to C#.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Knapcode.FluteSharp;
+
 /**
  * READ THIS LICENSE AGREEMENT CAREFULLY BEFORE USING THIS PRODUCT. BY USING
  * THIS PRODUCT YOU INDICATE YOUR ACCEPTANCE OF THE TERMS OF THE FOLLOWING
@@ -57,8 +63,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-namespace Knapcode.FluteSharp;
 
 public class LookUpTable
 {

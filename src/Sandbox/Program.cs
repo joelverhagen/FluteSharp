@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using Knapcode.FluteSharp;
+﻿using Knapcode.FluteSharp;
 
 var d = 9;
 
