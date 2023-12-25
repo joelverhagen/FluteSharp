@@ -35,6 +35,21 @@ public class FLUTETest
     [MemberData(nameof(AllTestCaseNamesAndLookupTableSizes))]
     public void DataDrivenTest(string testDataCase, int d)
     {
+        ExecuteDataDrivenTest(testDataCase, d, FLUTEs[d]);
+    }
+
+    [Theory]
+    [MemberData(nameof(AllTestCaseNames))]
+    public void DataDrivenTest_ForStaticDegree6(string testDataCase)
+    {
+        var d = 6;
+        var flute = new FLUTE(LookUpTable.Degree6);
+
+        ExecuteDataDrivenTest(testDataCase, d, flute);
+    }
+
+    private static void ExecuteDataDrivenTest(string testDataCase, int d, FLUTE flute)
+    {
         // Arrange
         var testDataDir = GetTestDataDir();
         var inputPath = Path.Combine(testDataDir, testDataCase, InputFileName);
@@ -50,7 +65,7 @@ public class FLUTETest
         }
 
         // Act
-        var tree = FLUTEs[d].Execute(points);
+        var tree = flute.Execute(points);
 
         // Assert
         var neighbors = tree.GetNeighbors();
@@ -64,6 +79,17 @@ public class FLUTETest
         {
             var expectedSolution = File.ReadAllText(solutionPath);
             Assert.Equal(expectedSolution, actualSolution);
+        }
+    }
+
+    public static IEnumerable<object[]> AllTestCaseNames
+    {
+        get
+        {
+            foreach (var testCase in TestCaseNames)
+            {
+                yield return new object[] { testCase };
+            }
         }
     }
 

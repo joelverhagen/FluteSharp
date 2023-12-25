@@ -64,7 +64,7 @@ namespace Knapcode.FluteSharp;
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-public class LookUpTable
+public partial class LookUpTable
 {
     /// <summary>
     /// Max. # of groups
@@ -87,7 +87,24 @@ public class LookUpTable
 
     internal readonly int[,] numsoln;
 
+#if USE_STREAMS
     public LookUpTable(int d, Stream powvStream, Stream postStream)
+        : this(d, powvStream.ReadByte, postStream.ReadByte)
+    {
+    }
+#endif
+
+    public LookUpTable(int d, string powvPath, string postPath)
+        : this(d, File.ReadAllBytes(powvPath), File.ReadAllBytes(postPath))
+    {
+    }
+
+    public LookUpTable(int d, byte[] powv, byte[] post)
+        : this(d, ByteReader.NewReadByte(powv), ByteReader.NewReadByte(post))
+    {
+    }
+
+    public LookUpTable(int d, Func<int> readBytePowv, Func<int> readBytePost)
     {
         if (d < 4 || d > 9)
         {
@@ -118,10 +135,10 @@ public class LookUpTable
         LUT = new Csoln[D + 1, MGROUP][]; // storing 4 .. D
         numsoln = new int[D + 1, MGROUP];
 
-        readLUT(powvStream, postStream);
+        readLUT(readBytePowv, readBytePost);
     }
 
-    private void readLUT(Stream powvStream, Stream postStream)
+    private void readLUT(Func<int> readBytePowv, Func<int> readBytePost)
     {
         char[] charnum = new char[256];
         char[] lineBuf = new char[32];
@@ -143,14 +160,14 @@ public class LookUpTable
         for (int d = 4; d <= D; d++)
         {
             // d=%d\n
-            linep = readLine(powvStream, lineBuf);
+            linep = readLine(readBytePowv, lineBuf);
             linep = scanString(lineBuf, linep, "d=");
             linep = scanNumber(lineBuf, linep, number);
             d = number[0];
             scanEOL(lineBuf, linep);
 
             // d=%d\n
-            linep = readLine(postStream, lineBuf);
+            linep = readLine(readBytePost, lineBuf);
             linep = scanString(lineBuf, linep, "d=");
             linep = scanNumber(lineBuf, linep, number);
             d = number[0];
@@ -158,12 +175,12 @@ public class LookUpTable
 
             for (int k = 0; k < numgrp[d]; k++)
             {
-                int ns = charnum[powvStream.ReadByte() & 0xff];
+                int ns = charnum[readBytePowv() & 0xff];
 
                 if (ns == 0)
                 { // same as some previous group
                   // %d\n
-                    linep = readLine(powvStream, lineBuf);
+                    linep = readLine(readBytePowv, lineBuf);
                     linep = scanNumber(lineBuf, linep, number);
                     int kk = number[0];
                     scanEOL(lineBuf, linep);
@@ -172,7 +189,7 @@ public class LookUpTable
                 }
                 else
                 {
-                    powvStream.ReadByte(); // '\n'
+                    readBytePowv(); // '\n'
                     numsoln[d, k] = ns;
                     Csoln[] p = new Csoln[ns];
                     for (int i = 0; i < ns; i++)
@@ -183,7 +200,7 @@ public class LookUpTable
                     LUT[d, k] = p;
                     for (int i = 1; i <= ns; i++)
                     {
-                        linep = readLine(powvStream, lineBuf);
+                        linep = readLine(readBytePowv, lineBuf);
                         p[poffset].parent = (byte)charnum[lineBuf[linep++]];
                         int j = 0;
                         while ((p[poffset].seg[j++] = (byte)charnum[lineBuf[linep++]]) != 0)
@@ -194,14 +211,14 @@ public class LookUpTable
                         {
                         }
                         int nn = 2 * d - 2;
-                        readChars(postStream, lineBuf, d - 2);
+                        readChars(readBytePost, lineBuf, d - 2);
                         linep = 0;
                         for (j = d; j < nn; j++)
                         {
                             c = charnum[lineBuf[linep++]];
                             p[poffset].rowcol[j - d] = (byte)c;
                         }
-                        readChars(postStream, lineBuf, nn / 2 + 1); // last char \n
+                        readChars(readBytePost, lineBuf, nn / 2 + 1); // last char \n
                         linep = 0;
                         for (j = 0; j < nn;)
                         {
@@ -216,11 +233,11 @@ public class LookUpTable
         }
     }
 
-    private int readLine(Stream ins, char[] buf)
+    private int readLine(Func<int> readByte, char[] buf)
     {
         int c;
         int i = 0;
-        while ((c = ins.ReadByte()) != -1)
+        while ((c = readByte()) != -1)
         {
             if (c == '\n')
             {
@@ -232,11 +249,11 @@ public class LookUpTable
         return 0;
     }
 
-    private void readChars(Stream ins, char[] buf, int count)
+    private void readChars(Func<int> readByte, char[] buf, int count)
     {
         for (int i = 0; i < count; i++)
         {
-            buf[i] = (char)(ins.ReadByte() & 0xff);
+            buf[i] = (char)(readByte() & 0xff);
         }
     }
 
@@ -279,5 +296,42 @@ public class LookUpTable
     private bool isDigit(int c)
     {
         return '0' <= c && c <= '9';
+    }
+
+    private class ByteReader
+    {
+        private readonly byte[] _data;
+        private bool _eof;
+        private int _index;
+
+        public static Func<int> NewReadByte(byte[] data)
+        {
+            var iterator = new ByteReader(data);
+            return iterator.ReadByte;
+        }
+
+        public ByteReader(byte[] data)
+        {
+            _data = data;
+            _eof = data.Length == 0;
+        }
+
+        public int ReadByte()
+        {
+            if (_eof)
+            {
+                return -1;
+            }
+
+            var b = _data[_index];
+
+            _index++;
+            if (_index >= _data.Length)
+            {
+                _eof = true;
+            }
+
+            return b;
+        }
     }
 }

@@ -4,6 +4,9 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>11.0</LangVersion>
+    <LookUpTableGenerator_Degrees>6</LookUpTableGenerator_Degrees>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -12,6 +15,15 @@
     <RootNamespace>Knapcode.FluteSharp</RootNamespace>
     <AssemblyOriginatorKeyFile>..\..\FluteSharp.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <UseStreams Condition="'$(UseStreams)' == ''">true</UseStreams>
+    <DefineConstants Condition="'$(UseStreams)' == 'true'">$(DefineConstants);USE_STREAMS</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <CompilerVisibleProperty Include="LookUpTableGenerator_Degrees" />
+  </ItemGroup>
   
   <PropertyGroup>
     <PackageId>Knapcode.FluteSharp</PackageId>
@@ -34,6 +46,12 @@
 
   <ItemGroup>
     <Content Include="..\..\data\*.dat" LinkBase="data" />
+    <AdditionalFiles Include="..\..\data\*.dat" LinkBase="data" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Generated\**\*.cs" />
+    <None Include="Generated\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +63,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SourceGenerator\SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <PropertyGroup>
