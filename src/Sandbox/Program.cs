@@ -27,7 +27,7 @@ public class Program
         var flutetree = flute.Execute(points);
 
         // print all of the paths
-        var paths = new HashSet<string>();
+        var paths = new Dictionary<string, bool>();
         for (int i = 0; i < flutetree.Branch.Length; i++)
         {
             var current = flutetree.Branch[i];
@@ -38,7 +38,7 @@ public class Program
 
                 var path = $"{current.X} {current.Y} {next.X} {next.Y}";
 
-                if (paths.Add(path))
+                if (paths.TryAdd(path, true))
                 {
                     Console.WriteLine(path);
                 }

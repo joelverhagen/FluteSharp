@@ -10,7 +10,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
     <AssemblyName>Knapcode.FluteSharp</AssemblyName>
     <RootNamespace>Knapcode.FluteSharp</RootNamespace>
     <AssemblyOriginatorKeyFile>..\..\FluteSharp.snk</AssemblyOriginatorKeyFile>
@@ -19,6 +19,11 @@
   <PropertyGroup>
     <UseStreams Condition="'$(UseStreams)' == ''">true</UseStreams>
     <DefineConstants Condition="'$(UseStreams)' == 'true'">$(DefineConstants);USE_STREAMS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <UseHashSet Condition="'$(UseHashSet)' == ''">true</UseHashSet>
+    <DefineConstants Condition="'$(UseHashSet)' == 'true'">$(DefineConstants);USE_HASHSET</DefineConstants>
   </PropertyGroup>
   
   <ItemGroup>

@@ -9,19 +9,27 @@ public class Tree
     public int Length { get; set; }
     public Branch[] Branch { get; set; } = Array.Empty<Branch>();
 
-    public Dictionary<Point, HashSet<Point>> GetNeighbors()
+    public Dictionary<Point, List<Point>> GetNeighbors()
     {
-        var output = new Dictionary<Point, HashSet<Point>>();
+        var pointToNeighbors = new Dictionary<Point, List<Point>>();
+        var pointToAdded = new Dictionary<Point, Dictionary<Point, bool>>();
 
-        HashSet<Point> GetOrAddPoint(Point point)
+        (List<Point>, Dictionary<Point, bool>) GetOrAddPoint(Point point)
         {
-            if (!output!.TryGetValue(point, out var neighbors))
+            Dictionary<Point, bool> added;
+            if (!pointToNeighbors!.TryGetValue(point, out var neighbors))
             {
-                neighbors = new HashSet<Point>();
-                output.Add(point, neighbors);
+                neighbors = new List<Point>();
+                added = new Dictionary<Point, bool>();
+                pointToNeighbors.Add(point, neighbors);
+                pointToAdded.Add(point, added);
+            }
+            else
+            {
+                added = pointToAdded[point];
             }
 
-            return neighbors;
+            return (neighbors, added);
         }
 
 
@@ -40,14 +48,35 @@ public class Tree
 
             if (!point.Equals(nextPoint))
             {
-                var neighbors = GetOrAddPoint(point);
-                var nextNeighbors = GetOrAddPoint(nextPoint);
+                (var neighbors, var added) = GetOrAddPoint(point);
+                (var nextNeighbors, var nextAdded) = GetOrAddPoint(nextPoint);
 
-                neighbors.Add(nextPoint);
-                nextNeighbors.Add(point);
+#if NET6_0_OR_GREATER
+                if (added.TryAdd(nextPoint, true))
+                {
+                    neighbors.Add(nextPoint);
+                }
+
+                if (nextAdded.TryAdd(nextPoint, true))
+                {
+                    nextNeighbors.Add(nextPoint);
+                }
+#else
+                if (!added.ContainsKey(nextPoint))
+                {
+                    added.Add(nextPoint, true);
+                    neighbors.Add(nextPoint);
+                }
+
+                if (!nextAdded.ContainsKey(nextPoint))
+                {
+                    nextAdded.Add(nextPoint, true);
+                    nextNeighbors.Add(nextPoint);
+                }
+#endif
             }
         }
 
-        return output;
+        return pointToNeighbors;
     }
 }

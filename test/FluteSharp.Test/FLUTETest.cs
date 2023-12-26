@@ -167,10 +167,10 @@ public class FLUTETest
 
     private static string PrintGrid(IReadOnlyList<Point> points)
     {
-        return PrintGrid(points, points.ToDictionary(p => p, p => new HashSet<Point>()));
+        return PrintGrid(points, points.ToDictionary(p => p, p => new List<Point>()));
     }
 
-    private static string PrintGrid(IReadOnlyList<Point> points, Dictionary<Point, HashSet<Point>> neighbors)
+    private static string PrintGrid(IReadOnlyList<Point> points, Dictionary<Point, List<Point>> neighbors)
     {
         var maxX = points.Concat(neighbors.Keys).Max(p => p.X);
         var maxY = points.Concat(neighbors.Keys).Max(p => p.Y);
