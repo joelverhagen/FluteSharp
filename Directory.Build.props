@@ -11,7 +11,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <FluteSharpStableVersion>0.4.0</FluteSharpStableVersion>
+    <FluteSharpStableVersion>0.5.0</FluteSharpStableVersion>
 
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_HEAD_REF)' != ''">$(GITHUB_HEAD_REF)</BranchVersionLabel>
     <BranchVersionLabel Condition="'$(BranchVersionLabel)' == '' and '$(GITHUB_REF)' != ''">$(GITHUB_REF)</BranchVersionLabel>
