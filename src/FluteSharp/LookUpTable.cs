@@ -203,12 +203,24 @@ public partial class LookUpTable
                         linep = readLine(readBytePowv, lineBuf);
                         p[poffset].parent = (byte)charnum[lineBuf[linep++]];
                         int j = 0;
-                        while ((p[poffset].seg[j++] = (byte)charnum[lineBuf[linep++]]) != 0)
+                        while (true)
                         {
+                            var b = (byte)charnum[lineBuf[linep++]];
+                            p[poffset].seg[j++] = b;
+                            if (b == 0)
+                            {
+                                break;
+                            }
                         }
                         j = 10;
-                        while ((p[poffset].seg[j--] = (byte)charnum[lineBuf[linep++]]) != 0)
+                        while (true)
                         {
+                            var b = (byte)charnum[lineBuf[linep++]];
+                            p[poffset].seg[j--] = b;
+                            if (b == 0)
+                            {
+                                break;
+                            }
                         }
                         int nn = 2 * d - 2;
                         readChars(readBytePost, lineBuf, d - 2);
