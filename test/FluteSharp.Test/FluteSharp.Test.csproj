@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>Knapcode.FluteSharp.Test</AssemblyName>
     <RootNamespace>Knapcode.FluteSharp</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
