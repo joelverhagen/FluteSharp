@@ -32,7 +32,6 @@ public class Tree
             return (neighbors, added);
         }
 
-
         for (int i = 0; i < Branch.Length; i++)
         {
             var branch = Branch[i];
@@ -51,7 +50,6 @@ public class Tree
                 (var neighbors, var added) = GetOrAddPoint(point);
                 (var nextNeighbors, var nextAdded) = GetOrAddPoint(nextPoint);
 
-#if NET6_0_OR_GREATER
                 if (added.TryAdd(nextPoint, true))
                 {
                     neighbors.Add(nextPoint);
@@ -61,19 +59,6 @@ public class Tree
                 {
                     nextNeighbors.Add(nextPoint);
                 }
-#else
-                if (!added.ContainsKey(nextPoint))
-                {
-                    added.Add(nextPoint, true);
-                    neighbors.Add(nextPoint);
-                }
-
-                if (!nextAdded.ContainsKey(nextPoint))
-                {
-                    nextAdded.Add(nextPoint, true);
-                    nextNeighbors.Add(nextPoint);
-                }
-#endif
             }
         }
 
