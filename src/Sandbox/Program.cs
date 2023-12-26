@@ -1,55 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using Knapcode.FluteSharp;
 
-namespace Knapcode.FluteSharp;
+var d = 9;
 
-public class Program
+using var powvStream = File.OpenRead(Path.Combine("data", $"POWV{d}.dat"));
+using var postStream = File.OpenRead(Path.Combine("data", $"POST{d}.dat"));
+
+var lut = new LookUpTable(d, powvStream, postStream);
+
+string? line;
+var points = new List<Point>();
+while ((line = Console.In.ReadLine()) != null)
 {
-    public static void Main()
+    var pieces = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    points.Add(new Point(int.Parse(pieces[0]), int.Parse(pieces[1])));
+}
+
+var flute = new FLUTE(lut);
+var flutetree = flute.Execute(points);
+
+// print all of the paths
+var paths = new HashSet<string>();
+for (int i = 0; i < flutetree.Branch.Length; i++)
+{
+    var current = flutetree.Branch[i];
+
+    while (true)
     {
-        var lut = LookUpTable.Degree6;
+        var next = flutetree.Branch[current.N];
 
-        var points = new List<Point>
+        var path = $"{current.X} {current.Y} {next.X} {next.Y}";
+
+        if (paths.Add(path))
         {
-            new Point(94, 18),
-            new Point(6, 19),
-            new Point(65, 27),
-            new Point(98, 27),
-            new Point(72, 29),
-            new Point(38, 45),
-            new Point(50, 67),
-            new Point(75, 69),
-            new Point(95, 75),
-            new Point(21, 96),
-        };
-
-        var flute = new FLUTE(lut);
-        var flutetree = flute.Execute(points);
-
-        // print all of the paths
-        var paths = new Dictionary<string, bool>();
-        for (int i = 0; i < flutetree.Branch.Length; i++)
-        {
-            var current = flutetree.Branch[i];
-
-            while (true)
-            {
-                var next = flutetree.Branch[current.N];
-
-                var path = $"{current.X} {current.Y} {next.X} {next.Y}";
-
-                if (paths.TryAdd(path, true))
-                {
-                    Console.WriteLine(path);
-                }
-
-                if (current.N == next.N)
-                {
-                    break;
-                }
-
-                current = next;
-            }
+            Console.WriteLine(path);
         }
+
+        if (current.N == next.N)
+        {
+            break;
+        }
+
+        current = next;
     }
 }
